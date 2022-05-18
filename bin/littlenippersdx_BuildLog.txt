@@ -1,0 +1,13 @@
+Output dir: C:\Users\Computer\Documents\C64 CODING PROJECTS\KICKASSEMBLER\Little_Nippers_Deluxe\bin
+parsing
+
+ * = $e000 "Titlescreen Charset"
+ .import c64 "c64/2x2charset.prg"
+//--------------------------------------
+jhgkuyglih
+^
+
+Error: Pseudo command 'jhgkuyglih' not defined
+at line 108, column 1 in littlenippersdx.asm
+
+
