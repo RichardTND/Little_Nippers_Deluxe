@@ -54,7 +54,8 @@ zeroscores: lda #$30
 			bne zeroscores 
 			lda #0
 			sta firebutton
-			 
+			lda #0 
+			sta jellyfish_enabled
 
 			// 2x2 charset mode before IRQs are in place
 
@@ -73,7 +74,7 @@ zeroscores: lda #$30
 
 			ldx #$00
 fillgrey:
-			lda #$0f
+			lda #$00
 			sta $d800,x
 			sta $d900,x
 			sta $da00,x
@@ -81,6 +82,9 @@ fillgrey:
 
 			inx 
 			bne fillgrey
+
+			lda #1 
+			sta gameoptionmode
 
 // This raster loop is used to time the in game options selector
 // and also continue playing the music from the title screen	
@@ -93,7 +97,7 @@ waitstart:
 			jsr musicplayer
 			jsr optionselector
 			jsr skillselector
-			
+			jsr titlecolourwash
 			lda $dc00 
 			lsr
 			lsr
@@ -216,18 +220,18 @@ stayas5:	lda #4
 			sta skilllevelchar
 			rts
 skillleveldown:
-			dec skilllevel 
 			lda skilllevel 
-			cmp #$ff
 			beq stayas0
+			dec skilllevel 
 			clc
 			adc #$31
 			sta skilllevelchar
 			rts
 stayas0:	lda #0
 			sta skilllevel
+			lda skilllevel
 			clc
-			adc #31
+			adc #$31
 			sta skilllevelchar
 			
 			rts
@@ -468,8 +472,7 @@ storspd:	lda level1_speedtable,x
 
 			// Disable the jellyfish option at start of a new game 
 
-			lda #0 
-			sta jellyfish_enabled
+			lda #0
 			sta penalty_enabled
 			sta crab_released
 			sta time_delayMS
@@ -514,6 +517,11 @@ setgrtext:  lda getreadytext,x
 			lda #$18
 			sta charsm+1
 			jsr waitdelay
+
+			// Disable scoring points sprite 
+
+			lda #0
+			sta points_sprite_released
 
 // The GET READY screen is now running, wait for the
 // fire button and spacebar to be pressed in order
@@ -696,30 +704,47 @@ animloop:	ldx #0
 // In game background animation 
 
 animbackground:
-/*
+
 			lda chr_anim_delay
-			cmp #3
+			cmp #4
 			beq dochranim
 			inc chr_anim_delay 
 			rts 
 dochranim:	lda #0
 			sta chr_anim_delay 
-			lda $0800+(76*8)+7
+			lda $0800+(228*8)+7
 			sta chr_anim_store1
-			lda $0800+(77*8)+7
+			lda $0800+(229*8)+7
 			sta chr_anim_store2 
 			ldx #7
-scrollchr:	lda $0800+(76*8)-1,x 
-			sta $0800+(76*8),x
-			lda $0800+(77*8)-1,x 
-			sta $0800+(77*8),x 
+scrollchr:	lda $0800+(228*8)-1,x 
+			sta $0800+(228*8),x
+			lda $0800+(229*8)-1,x 
+			sta $0800+(229*8),x 
 			dex
 			bpl scrollchr 
 			lda chr_anim_store1
-			sta $0800+(76*8)
+			sta $0800+(228*8)
 			lda chr_anim_store2
-			sta $0800+(77*8)
-*/
+			sta $0800+(229*8)
+			ldx #$00
+shiftcolumn: 	
+			lda $0800+(228*8),x 
+			lsr 
+			ror $0800+(228*8),x 
+			inx 
+			cpx #$08 
+			bne shiftcolumn
+			ldx #$00
+shiftcolumn2:
+			lda $0800+(229*8),x
+			lsr 
+			ror $0800+(229*8),x 
+		 	inx 
+			cpx #$08
+			bne shiftcolumn2
+			rts
+
 			rts
 			
 // Player game control 
@@ -737,6 +762,9 @@ splashdone:	lda #0
 			sta objpos
 			lda #0
 			sta crabinwater
+			lda #0
+			sta points_sprite_released
+			sta crab_released
 			jmp missed 
 
 // Main player control ... If the the crab / jellyfish is in the water 
@@ -798,8 +826,12 @@ nocontrol:
 			// automatically.
 
 testpenalty:
+			lda points_sprite_released
+			cmp #1
+			beq nopenalty
 			lda crab_released 
 			bne nopenalty
+			
 			inc time_delayMS
 			lda time_delayMS
 			cmp #$30
@@ -908,7 +940,7 @@ movecrab:	lda jellyfish_enabled
 			bne objectiscrab
 			lda jelly_fish_spr
 			sta $07f8 
-			lda #$04
+			lda #$05
 			sta $d027 
 			jmp movementloop
 objectiscrab:						
@@ -1541,8 +1573,22 @@ checksecondq:
 			beq levelcomplete
 			rts 
 levelcomplete:
-		
+
+			// Step 1 - Wait until the score tab has finished 
+			jsr synctimer
+			lda #0
+			sta objpos
+			lda objpos+15
+			sec
+			sbc #4
+			cmp #$20 
+			bcs stillavailable
 			jsr sfx_welldone
+		 
+			jmp finishednow
+stillavailable:
+			jmp levelcomplete
+finishednow:
 			jsr bonus
 			jsr updatepanel
 			lda #0
@@ -1884,6 +1930,10 @@ putstatus:	lda quotatext,x
 			inx 
 			cpx #$02
 			bne putstatus
+			lda levelpointer
+			clc
+			adc #$31
+			sta levelposition
 			rts
 	
 // Init routine (Draw game screen)
@@ -2016,6 +2066,8 @@ sfx_crabsplash:
 			jmp initsfx
 			
 sfx_crabnip:
+			lda #1 
+			sta points_sprite_released
 			lda #0
 			sta snappysound
 			lda crabnip_ad 
@@ -2163,7 +2215,10 @@ sr:			lda #$00
 // The scoring points sprites code 
 
 pointsprcode:
-			lda crab_released
+			//lda crab_released
+			//cmp #1
+			//beq skippointsflycode
+			lda points_sprite_released
 			beq skippointsflycode
 			lda objpos+15
 			sec
@@ -2175,9 +2230,8 @@ pointsprcode:
 			sta objpos+14
 			lda #sprite_10seconds
 			sta spriteSM+1
-
-			
 			lda #0
+			sta points_sprite_released
 			sta crab_released
 			rts 
 notout:		sta objpos+15

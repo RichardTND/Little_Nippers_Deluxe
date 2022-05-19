@@ -15,6 +15,7 @@ checkforhiscore:
 	sta $d019
 	sta $d01a
 	sta firebutton
+	sta gameoptionmode
 	sta $d020 
 	sta $d021
 	lda #$81
@@ -295,7 +296,7 @@ tirq4:
 	asl $d019 
 	lda #$f0
 	sta $d012
-	lda ypos 
+	lda ypos  
 	ora #$10
 	sta $d011 
  
@@ -370,6 +371,7 @@ titleloop:
 	cmp rt
 	beq *-3
 	jsr upscroll
+	jsr titlecolourwash
 	lda $dc00 
 	lsr 
 	lsr 
@@ -399,224 +401,301 @@ titleloop2:
 
 upscroll:
 	lda ydelay 
-	cmp #2 
-	beq ydelayok 
-	inc ydelay 
-scrollexit:
-	rts 
-	
-ydelayok:
+	cmp #2
+	beq scrollup
+	inc ydelay
+skipshift:
+	rts
+scrollup:
 	lda #0
-	sta ydelay 
-	lda ypos 
-	sec 
+	sta ydelay
+
+	lda ypos
+	sec
 	sbc #1
-	and #7
+	and #$07 
 	sta ypos 
-	bcs scrollexit 
-	jsr hardscroll01
-	jsr hardscroll02
-	jsr hardscroll03 
-	jsr hardscroll04
-	//Self-mod text output, after 
-	//shifting the screen data upwards 
-	
-	ldx #$00
-	ldy #$00
+	bcs skipshift
+	ora #$10
+	sta ypos2
+      ldx #$27
+shiftrows:
+	  lda tscreen+360,x 
+	  sta tscreen+320,x
+      lda tscreen+400,x
+      sta tscreen+360,x
+      lda tscreen+440,x
+      sta tscreen+400,x
+      lda tscreen+480,x
+      sta tscreen+440,x
+      lda tscreen+520,x
+      sta tscreen+480,x
+      lda tscreen+560,x
+      sta tscreen+520,x
+      lda tscreen+600,x
+      sta tscreen+560,x
+      lda tscreen+640,x
+      sta tscreen+600,x
+      dex
+      bpl shiftrows
+      ldx #$27
+shiftrows2:      
+      lda tscreen+680,x
+      sta tscreen+640,x
+      lda tscreen+720,x
+      sta tscreen+680,x
+      lda tscreen+760,x
+      sta tscreen+720,x
+      lda tscreen+800,x
+      sta tscreen+760,x
+      lda tscreen+840,x
+      sta tscreen+800,x
+      lda tscreen+880,x
+      sta tscreen+840,x
+      lda tscreen+920,x
+      sta tscreen+880,x
+
+      dex
+      
+      bpl shiftrows2
+
+updatemessage:
+	ldx #0
 messread:
-	lda scrolltext,x 
-	beq wrapupscroll
-	clc 
-noteor:
-	adc #0
-	sta $c400+(24*40),y
-	eor #$40
-	sta $c401+(24*40),y
-	iny 
-	iny 
+	lda scrolltext,x
+	sta $02,x
+	cmp #$00
+	beq wraptext 
 	inx 
 	cpx #20
 	bne messread 
-	
-	//Should text be normal or rvs mode 
-	
-	lda textmode 
-	beq fliptocase1
-	cmp #1
-	beq fliptocase0
-	rts 
-	
-fliptocase1:
-	// Set RVS on 
-	lda #1
-	sta textmode 
-	lda #$80 
-	sta noteor+1
-	rts 
-	
-fliptocase0:
-	// Set RVS off 
-	lda #0
-	sta textmode 
-	lda #$00
-	sta noteor+1
-	
-	// Setup new row of the text 
-	
-	lda messread+1
-	clc 
-	adc #20
-	sta messread+1
-	
-	lda messread+2
-	adc #0
-	sta messread+2
-	rts 
-	
-wrapupscroll:
-tsm1:
-	lda #<scrolltext
+	jmp store 
+wraptext:
+	lda #<scrolltext 
 	sta messread+1
 	lda #>scrolltext
 	sta messread+2 
-	rts 
+	jmp messread
 
-		// Hardscroll segment 1 
-		
-hardscroll01:
+store:
+	lda textmode
+	cmp #1
+	beq lower
+	cmp #2
+	beq linespace
+upper:
+	ldx	#$00
+	ldy #$00
+	txa 
+upperloop:
+	lda $02,x 
+	sta tscreen+920,y 
+	eor #$40
+	sta tscreen+920+1,y 
+	iny
+	iny
+	inx
+	cpx #$14
+	bne upperloop
+	lda #1
+	sta textmode
+	rts
 
+lower:
 	ldx #$00
-hs_loop1:
-	lda $c400+(9*40),x
-	sta $c400+(8*40),x
-	lda $c400+(10*40),x
-	sta $c400+(9*40),x
-	lda $c400+(11*40),x
-	sta $c400+(10*40),x 
-	lda $c400+(12*40),x
-	sta $c400+(11*40),x 
-	inx 
+	ldy #$00
+	txa
+lowerloop:
+	lda $02,x 
+	eor #$80 
+	sta $c400+920,y
+	eor #$40
+	sta $c400+920+1,y	
+	iny
+	iny
+	inx
+	cpx #$14
+	bne lowerloop 
+	lda #2
+	sta textmode
+	rts
+linespace:
+	ldx #$00
+dospace:
+	lda #$20
+	sta $c400+920,x
+	inx
 	cpx #40 
-	bne hs_loop1
-	rts 
-	
-hardscroll02:
-	ldx #$00
-hs_loop2:
-	lda $c400+(13*40),x
-	sta $c400+(12*40),x
-	lda $c400+(14*40),x
-	sta $c400+(13*40),x
-	lda $c400+(15*40),x
-	sta $c400+(14*40),x
-	lda $c400+(16*40),x
-	sta $c400+(15*40),x
-	inx 
-	cpx #40
-	bne hs_loop2
-	rts 
-	
-hardscroll03:
-	ldx #$00
-hs_loop3: 
-	lda $c400+(17*40),x
-	sta $c400+(16*40),x
-	lda $c400+(18*40),x
-	sta $c400+(17*40),x
-	lda $c400+(19*40),x
-	sta $c400+(18*40),x
-	lda $c400+(20*40),x
-	sta $c400+(19*40),x 
-	inx 
-	cpx #40
-	bne hs_loop3
+	bne dospace 
+	lda #0 
+	sta textmode 
+
+	lda messread+1
+	clc
+	adc #20
+	sta messread+1
+
+	lda messread+2
+	adc #0
+	sta messread+2 
+	bcs exit
+exit:
 	rts
-hardscroll04:
-	ldx #$00
-hs_loop4:
-	lda $c400+(21*40),x
-	sta $c400+(20*40),x
-	lda $c400+(22*40),x
-	sta $c400+(21*40),x
-	lda $c400+(23*40),x 
-	sta $c400+(22*40),x 
-	lda $c400+(24*40),x
-	sta $c400+(23*40),x
-	inx 
-	cpx #40
-	bne hs_loop4 
-	rts
+
+// Titlescreen colour wash routine 
+
+titlecolourwash:
+				lda colourdelay
+				cmp #2
+				beq colourok
+				inc colourdelay 
+				rts 
+colourok:		lda #0
+				sta colourdelay
+				ldx colourpointer
+				lda colourtable,x 
+				sta rowcolourtable+19
+				inx
+				cpx #colourtableend-colourtable 
+				beq resetcolourtable
+				inc colourpointer
+				jmp calculaterows
+resetcolourtable:
+				ldx #0
+				stx colourpointer
+			 
+calculaterows:	ldx #$00
+shiftcolleft:   lda rowcolourtable+1,x 
+				sta rowcolourtable,x
+				inx
+				cpx #19
+				bne shiftcolleft 
+				ldx #19
+shiftcollright: lda rowcolourtable+19,x 
+				sta rowcolourtable+20,x								 				
+				dex
+				bpl shiftcollright 
+				ldx #$00
+paintrowseg1:	lda rowcolourtable,x
+				ldy gameoptionmode
+				cpy #1
+				bne ignorerows
+				sta $d800+160,x
+				sta $d800+200,x
+				sta $d800+240,x
+ignorerows:				
+				sta $d800+280,x
+				sta $d800+320,x 
+				sta $d800+360,x
+				sta $d800+400,x
+				sta $d800+440,x
+				sta $d800+480,x
+				sta $d800+520,x 
+				sta $d800+560,x
+				inx
+				cpx #40 
+				bne paintrowseg1
+				ldx #$00
+paintrowseg2:	lda rowcolourtable,x
+				sta $d800+600,x
+				sta $d800+640,x
+				sta $d800+680,x
+				sta $d800+720,x
+				sta $d800+760,x
+				sta $d800+800,x
+				sta $d800+840,x
+				sta $d800+880,x
+				sta $d800+920,x
+				inx 
+				cpx #40 
+				bne paintrowseg2
+				
+				rts
+
 	
 	
 
 ydelay: .byte 0	
 ypos: .byte 0
+ypos2: .byte 0
 textmode: .byte 0
+colourdelay: .byte 0
+colourpointer: .byte 0
+gameoptionmode: .byte 0
+colourtable: .byte $09,$02,$08,$0a,$07,$01,$07,$0a,$08,$02,$09 
+			 .byte $06,$04,$0e,$03,$0d,$01,$0d,$03,$0e,$04,$06
+			 .byte $0b,$0c,$0f,$07,$0d,$01,$0d,$07,$0f,$0c,$0b
+colourtableend:
+
+rowcolourtable: .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+				.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+				.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+				.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+
 
 //.TEXT "12345678901234567890"
 scrolltext:
   .text "                    "
   .text "     welcome to     "
   .text "                    "
-  .text "  little nippers dx "
+  .text "   little nippers   "
+  .text " the deluxe edition "
   .text "                    "
-  .text " copyright (c) 2022 "
+  .text "written for reset 64"
+  .text "                    "
+  .text "      (c) 2022      "
   .text " the new dimension  "
   .text "                    "
-  .text "                    "
-  .text "   code and sound   "
+  .text "code, sfx, charsets "
+  .text "      and music     "
   .text "         by         "
   .text "  richard bayliss   "
   .text "                    "
-  .text "    graphics by     "
+  .text "graphics and sprites"
+  .text "         by         "
   .text " hugues  poisseroux "
   .text "                    "
-  .text "   2x2 charset by   "
-  .text "       ??????       "
-  .text "                    "
-  .text "                    "
-  .text " press spacebar or  "
-  .text "fire on any joystick"
-  .text "      to play       "
-  .text "                    "
-  .text "                    "
+  .text "--------------------"
   .text "   the snap happy   "
   .text "    hall of fame    "
-  .text "                    "
+  .text "--------------------"
   .text "01. "
-name1: .text "richard   "
+name1: .text "little    "
 hiscore1: .text "010000"
 .text "02. "
-name2: .text "hugues    "
+name2: .text "nippers   "
 hiscore2: .text "009000"
 .text "03. "
-name3: .text "martin    "
+name3: .text "deluxe    "
 hiscore3: .text "008000"
 .text "04. "
-name4: .text "kevin     "
+name4: .text "by        "
 hiscore4: .text "007000"
 .text "05. "
-name5: .text "anthony   "
+name5: .text "richard   "
 hiscore5: .text "006000"
 .text "06. "
-name6: .text "magnus    "
+name6: .text "bayliss   "
 hiscore6: .text "005000"
 .text "07. "
-name7: .text "paul      "
+name7: .text "brought   "
 hiscore7: .text "004000"
 .text "08. "
-name8: .text "andrew    "
+name8: .text "to you    "
 hiscore8: .text "003000"
 .text "09. "
-name9: .text "neil      "
+name9: .text "by        "
 hiscore9: .text "002000"
 .text "10. "
 name10: .text "reset     "
 hiscore10: .text "001000"
 
-.text "                    "
-.text "                    "
-.text "                    "
+.text "--------------------"
+.text " press spacebar or  "
+.text "fire on any joystick"
+.text "      to play!      " 
+.text "--------------------"
 .text "                    "
 .byte 0 
 name: .text "         "

@@ -15,7 +15,7 @@ https://richard-tnd.itch.io/littlenippers
 --------------------------------------*/
 
 // Variables & constants
-.var ready_to_crunch = 0 //Change to 1 when ready to use Exomizer
+.var ready_to_crunch = 1 //Change to 1 when ready to use cruncher
 .var cheatmode = 0
 .const screen = $0400
 .const colour = $d800 
@@ -28,6 +28,7 @@ https://richard-tnd.itch.io/littlenippers
 .const skilllevelcharposition = $05fd
 .const musicinit = $1000
 .const musicplay = $1003
+.const tscreen = $c400
 
 .var crab_pos_x1 = $10
 .var crab_pos_x2 = $24

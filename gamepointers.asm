@@ -25,6 +25,7 @@ time_delayS: .byte 0
 penalty_enabled: .byte 0
 crab_released: .byte 0
 jingles_allowed_to_play: .byte 0
+points_sprite_released: .byte 0
 // Animation and sprite pointers 
 
 spr_anim_delay: .byte 0
