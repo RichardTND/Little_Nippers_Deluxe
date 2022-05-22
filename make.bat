@@ -4,7 +4,6 @@ del littlenippersdx.prg
 java -jar "c:\kickassembler\kickass.jar" littlenippersdx.asm
 if not exist littlenippersdx.prg exit
 
-c:\tscrunch\tscrunch\bin\tscrunch.exe -p -x $4000 littlenippersdx.prg littlenippersdx.prg
-rem c:\exomizer20\win32\exomizer.exe sfx $4000 littlenippersdx.prg -o littlenippersdx.prg -x3
+c:\exomizer\win32\exomizer.exe sfx $4000 littlenippersdx.prg -o littlenippersdx.prg -n
 
 c:\c64\tools\vice\x64sc.exe littlenippersdx.prg

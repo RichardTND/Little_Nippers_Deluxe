@@ -424,16 +424,11 @@ levelcompletetext:
 levellen:
 gameovertext: 
 			.text "     game over      "
-hiscoremessage:
-			.text "     well done      "
-			.text " please enter your  "
-			.text "name for the hall of"
-			.text "       fame.        "
 
 completemessage:
-			.text " skill level done "
+			.text "skill level cleared "
 completemessage2:
-			.text " try the next one "
+			.text " try the next one   "
 			
 skillleveltable1:			
 			.byte $32 // 20 crabs 

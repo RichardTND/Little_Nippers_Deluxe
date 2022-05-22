@@ -17,6 +17,7 @@ https://richard-tnd.itch.io/littlenippers
 // Variables & constants
 .var ready_to_crunch = 1 //Change to 1 when ready to use cruncher
 .var cheatmode = 0
+
 .const screen = $0400
 .const colour = $d800 
 .const scorepos = $07c6 
@@ -26,8 +27,8 @@ https://richard-tnd.itch.io/littlenippers
 .const titlestart = $054c
 .const levelposition = $07cf
 .const skilllevelcharposition = $05fd
-.const musicinit = $1000
-.const musicplay = $1003
+.const musicinit = $7000
+.const musicplay = $7003
 .const tscreen = $c400
 
 .var crab_pos_x1 = $10
@@ -59,6 +60,12 @@ https://richard-tnd.itch.io/littlenippers
 .var get_ready_jingle = $01 
 .var game_over_jingle = $02
 .var well_done_jingle = $03
+.var hi_score_music = $04
+
+.var scorelen = 6
+.var namelen = 9
+.var listlen = 10
+
 //--------------------------------------
 // Main game charset data 
 
@@ -70,10 +77,14 @@ gamecharset:
 // Basic 16384
 BasicUpstart2(CodeStart)
 }
-// Title music 
-			* = $1000 "MUSIC"
-	.import c64 "c64/music.prg"
-//--------------------------------------
+.if (ready_to_crunch ==1) {
+
+} else {
+	* = $1000 "GAME SCREEN CHARSET"
+}
+gamecharset:
+	.import binary "c64/gamecharset.bin"
+//--------------------------------------	
 // Main game sprite data
 			* = $2000 "SPRITES"
 	.import binary "c64/gamesprites.bin"
@@ -104,6 +115,10 @@ attribs:
 gamescreen:	
 	.import binary "c64/gamescreen.bin"
 //--------------------------------------	
+// Title music 
+			* = $7000 "MUSIC"
+	.import c64 "c64/music.prg"
+//--------------------------------------
 // Title logo video RAM 
 	* = $8400 "LOGO VIDEO RAM"
 logoscreen:
@@ -114,7 +129,7 @@ logoscreen:
 logocolour:
 	.import c64 "c64/logo_colram.prg"	
 //--------------------------------------	
-// Title code 
+// Title code (including hi score detection)
 	* = $9000 "TITLE SCREEN CODE"
 	.import source "titlescreen.asm"
 //--------------------------------------	
@@ -126,14 +141,7 @@ logocolour:
 // set to BANK 0, $c400-$c7e8
 // 2x2 for title screen charset 
 	* = $e000 "Titlescreen Charset"
-	.import c64 "c64/2x2charset.prg"
+	//import c64 "c64/2x2charset.prg"
+	.import c64 "c64/padua.prg"
 //--------------------------------------
 
-.if (ready_to_crunch ==1) {
-
-} else {
-	* = $f000 "GAME SCREEN CHARSET"
-}
-gamecharset:
-	.import binary "c64/gamecharset.bin"
-//--------------------------------------	

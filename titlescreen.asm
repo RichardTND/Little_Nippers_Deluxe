@@ -28,7 +28,13 @@ checkforhiscore:
 	sty $ffff
 	lda #$0b 
 	sta $d011 
-	
+	ldx #$00
+silencetitle:
+	lda #$00
+	sta $d400,x 
+	inx 
+	cpx #$18
+	bne silencetitle
 	jsr waitdelay
 	
 	
@@ -580,6 +586,8 @@ paintrowseg1:	lda rowcolourtable,x
 				ldy gameoptionmode
 				cpy #1
 				bne ignorerows
+				sta $d800+80,x
+				sta $d800+120,x
 				sta $d800+160,x
 				sta $d800+200,x
 				sta $d800+240,x
@@ -660,44 +668,53 @@ scrolltext:
   .text "   the snap happy   "
   .text "    hall of fame    "
   .text "--------------------"
+hiscorestart:  
   .text "01. "
 name1: .text "little    "
-hiscore1: .text "010000"
+hiscore1: .text "020000"
 .text "02. "
 name2: .text "nippers   "
-hiscore2: .text "009000"
+hiscore2: .text "019000"
 .text "03. "
 name3: .text "deluxe    "
-hiscore3: .text "008000"
+hiscore3: .text "018000"
 .text "04. "
 name4: .text "by        "
-hiscore4: .text "007000"
+hiscore4: .text "017000"
 .text "05. "
 name5: .text "richard   "
-hiscore5: .text "006000"
+hiscore5: .text "016000"
 .text "06. "
 name6: .text "bayliss   "
-hiscore6: .text "005000"
+hiscore6: .text "015000"
 .text "07. "
 name7: .text "brought   "
-hiscore7: .text "004000"
+hiscore7: .text "014000"
 .text "08. "
 name8: .text "to you    "
-hiscore8: .text "003000"
+hiscore8: .text "013000"
 .text "09. "
 name9: .text "by        "
-hiscore9: .text "002000"
+hiscore9: .text "012000"
 .text "10. "
 name10: .text "reset     "
-hiscore10: .text "001000"
-
+hiscore10: .text "011000"
+hiscoreend:
+.text "                    "
 .text "--------------------"
 .text " press spacebar or  "
 .text "fire on any joystick"
 .text "      to play!      " 
 .text "--------------------"
+
 .text "                    "
 .byte 0 
 name: .text "         "
 nameend:
     
+hslo: .byte <hiscore1,<hiscore2,<hiscore3,<hiscore4,<hiscore5,<hiscore6,<hiscore7,<hiscore8,<hiscore9,<hiscore10
+hshi: .byte >hiscore1,>hiscore2,>hiscore3,>hiscore4,>hiscore5,>hiscore6,>hiscore7,>hiscore8,>hiscore9,>hiscore10
+nmlo: .byte <name1,<name2,<name3,<name4,<name5,<name6,<name7,<name8,<name9,<name10
+nmhi: .byte >name1,>name2,>name3,>name4,>name5,>name6,>name7,>name8,>name9,>name10
+
+.import source "hiscore.asm"

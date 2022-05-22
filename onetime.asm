@@ -49,6 +49,17 @@ grabcharset:
             sta $01 
             cli
 }
+            // Automatically copy and paste first place hi 
+            // score position to the in hi score panel
+
+            ldx #$00
+copy1stplaceposscore:
+            lda hiscore1,x
+            sta hiscoretext,x 
+            inx 
+            cpx #scorelen 
+            bne copy1stplaceposscore
+
             // TODO: Disk loading of hi scores (Where applicable)
 
 			jmp titlescreencode

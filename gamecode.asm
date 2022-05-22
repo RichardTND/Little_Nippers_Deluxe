@@ -254,7 +254,8 @@ clearsid:	lda #$00
 			sta sounddelay
 			lda #0
 			sta soundpointer
-			
+			jsr clearscreenaway
+
 			// Enable multicolour graphics 
 			// and set title screen 2x2 charset 
 			// to the self-modifying code inside IRQ
@@ -319,8 +320,7 @@ clearsid:	lda #$00
 
 			// Play GET READY jingle 
 
-			lda #get_ready_jingle
-			jsr musicinit 
+		 
 
 			cli 
 			jmp mainstart
@@ -458,7 +458,7 @@ storspd:	lda level1_speedtable,x
 			inx 
 			cpx #16
 			bne storspd
-			jsr drawgamescreen
+		
 			jsr updatepanel
 			lda levelpointer 
 			clc 
@@ -468,7 +468,8 @@ storspd:	lda level1_speedtable,x
 			sta spriteSM+1
 			lda #1 
 			sta jingles_allowed_to_play
-
+			lda #get_ready_jingle
+			jsr musicinit
 
 			// Disable the jellyfish option at start of a new game 
 
@@ -523,6 +524,7 @@ setgrtext:  lda getreadytext,x
 			lda #0
 			sta points_sprite_released
 
+			
 // The GET READY screen is now running, wait for the
 // fire button and spacebar to be pressed in order
 // to start the game.
@@ -536,7 +538,7 @@ waittoplay:
 			lsr
 			bit firebutton
 			ror firebutton 
-			bmi waittoplay
+			bmi waittoplay2
 			bvc waittoplay2
 			jmp readytoplaynow
 waittoplay2:
@@ -940,7 +942,7 @@ movecrab:	lda jellyfish_enabled
 			bne objectiscrab
 			lda jelly_fish_spr
 			sta $07f8 
-			lda #$05
+			lda #$04
 			sta $d027 
 			jmp movementloop
 objectiscrab:						
@@ -1118,7 +1120,7 @@ goloop:		jsr synctimer
 			ror firebutton
 			bmi goloop1
 			bvc goloop1
-			jmp checkforhiscore
+			jmp hi_score_checker
 goloop1:	lda $dc01 
 			lsr
 			lsr
@@ -1129,7 +1131,7 @@ goloop1:	lda $dc01
 			ror firebutton
 			bmi goloop
 			bvc goloop
-			jmp checkforhiscore
+			jmp hi_score_checker
 					
 // Runners code 
 
@@ -1607,7 +1609,7 @@ zerosprp:	lda #$00
 			sta jingles_allowed_to_play 
 
 // Place welldone text 
-
+		    
 			lda #$18
 			sta charsm+1
 			lda #$00 
@@ -2287,6 +2289,11 @@ clrloop:	lda #$20
 			sta $c500,x
 			sta $c600,x
 			sta $c6e8,x
+			lda #$07
+			sta $d800,x
+			sta $d900,x
+			sta $da00,x
+			sta $dae8,x
 			inx
 			bne clrloop 
 	 
