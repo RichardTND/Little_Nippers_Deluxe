@@ -1,0 +1,4 @@
+
+!to "beach1attribs.prg",cbm
+*=$0800
+!bin "levels/beach1attribs.bin"

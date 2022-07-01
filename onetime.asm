@@ -16,39 +16,7 @@ ntsc:		lda #0
 			
 skipsystemmode:			
 
-            // Disable the kernal and then grab the charset from $f000 and put at $0800
-            sei
-
-.if (ready_to_crunch==1) {
-} else {            
-            lda #$34
-            sta $01
-
-            ldx #$00
-grabcharset:
-            lda gamecharset,x 
-            sta $0800,x 
-            lda gamecharset+$100,x 
-            sta $0900,x 
-            lda gamecharset+$200,x
-            sta $0a00,x 
-            lda gamecharset+$300,x 
-            sta $0b00,x 
-            lda gamecharset+$400,x 
-            sta $0c00,x 
-            lda gamecharset+$500,x
-            sta $0d00,x 
-            lda gamecharset+$600,x 
-            sta $0e00,x 
-            lda gamecharset+$6ff,x 
-            sta $0eff,x 
-            inx 
-            bne grabcharset
-
-            lda #$37 
-            sta $01 
-            cli
-}
+           
             // Automatically copy and paste first place hi 
             // score position to the in hi score panel
 

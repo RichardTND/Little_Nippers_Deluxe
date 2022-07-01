@@ -1,0 +1,4 @@
+
+!to "beach1charset.prg",cbm
+*=$0800
+!bin "levels/beach1charset.bin"

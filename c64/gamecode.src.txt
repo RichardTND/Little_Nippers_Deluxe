@@ -1,0 +1,476 @@
+;***************************************
+;*                                     *
+;*             Poing 3                 *
+;*    Written by Richard Bayliss       *
+;*   For RETRO PROGRAMMERS INSIDE      *
+;*          PONG Challenge             *
+;*                                     *
+;*     (C) 2022 The New Dimension      *
+;*                                     *
+;***************************************
+
+;Addresses
+
+musicinit = $1000
+musicplay = $1003
+gamemap  = $0800
+gamecol  = $0c00
+scrn     = $0400
+charset  = $2800
+scrtile1 = charset+($28*8)
+scrtile2 = charset+($29*8)
+scrtile3 = charset+($2a*8)
+scrtile4 = charset+($2b*8)
+laserchar1 = charset+($2c*8)
+laserchar2 = charset+($2d*8)
+
+;Main code
+
+         *= $3000
+
+         lda #<$9000
+         sta $0328
+         lda #>$9000
+         sta $0329
+
+;Setup hardware registers and display
+;the game screen
+
+         lda #$1b
+         sta $d011
+         lda #$1a
+         sta $d018
+         lda #$18
+         sta $d016
+         lda #$00
+         sta $d020
+         sta $d021
+         lda #$09
+         sta $d022
+         lda #$01
+         sta $d023
+         ldx #$fb
+         txs
+
+
+         ;Draw game map to screen
+
+         ldx #$00
+drawscreen
+         lda gamemap,x
+         sta $0400,x
+         lda gamemap+$0100,x
+         sta $0500,x
+         lda gamemap+$0200,x
+         sta $0600,x
+         lda gamemap+$02e8,x
+         sta $06e8,x
+         lda gamecol,x
+         sta $d800,x
+         lda gamecol+$0100,x
+         sta $d900,x
+         lda gamecol+$0200,x
+         sta $da00,x
+         lda gamecol+$02e8,x
+         sta $dae8,x
+         inx
+         bne drawscreen
+
+;Setup game sprites
+
+;Setup IRQ raster interrupt
+
+         ldx #<irq
+         ldy #>irq
+         lda #$7f
+         stx $0314
+         sty $0315
+         sta $dc0d
+         sta $dd0d
+         lda #$2a
+         sta $d012
+
+         lda #$1b
+         sta $d011
+         lda #$01
+         sta $d01a
+         sta $d019
+         lda #$00
+         jsr musicinit
+         cli
+         jmp gameloop
+
+;Main single irq
+
+irq      asl $d019
+         lda $dc0d
+         sta $dd0d
+         lda #$fa
+         sta $d012
+         lda #1
+         sta rt
+         jsr musicplay
+         jmp $ea7e
+
+;Main game loop
+
+gameloop jsr synctimer
+         jmp gameloop
+
+;Synchronize game timer
+
+synctimer
+         lda #0
+         sta rt
+         cmp rt
+         beq *-3
+         jsr expandmsb
+         jsr bganim
+         rts
+
+;Expand sprite position area so that all
+;sprites can use whole screen area,
+;rather than a portion of it!
+
+expandmsb ldy #$00
+expmain  lda objpos+1,y
+         sta $d001,y
+         lda objpos,y
+         asl a
+         ror $d010
+         sta $0d00,y
+         iny
+         iny
+         cpy #16
+         bne expmain
+         rts
+
+;Background animation routines
+
+bganim   jsr laseranim
+         jsr movingtiles
+         rts
+
+         ;Animate the lasers
+
+laseranim
+         lda lasdelay
+         cmp #2
+         beq lasok
+         inc lasdelay
+         rts
+lasok    lda #$00
+         sta lasdelay
+         lda laserchar1
+         pha
+         ldx #$00
+chrloop1 lda laserchar1+1,x
+         sta laserchar1,x
+         inx
+         cpx #$08
+         bne chrloop1
+         pla
+         sta laserchar1+7
+         lda laserchar2+7
+         pha
+         ldx #$06
+chrloop2 lda laserchar2,x
+         sta laserchar2+1,x
+         dex
+         bpl chrloop2
+         pla
+         sta laserchar2
+         rts
+
+         ;Moving tiles
+
+movingtiles
+         jsr timemotion
+         lda tiledelay
+         cmp #$03
+         beq tilemoveok
+         inc tiledelay
+         rts
+tilemoveok
+         lda #$00
+         sta tiledelay
+
+         lda tiledir
+         cmp #1
+         bne notnortheast
+         jmp northeast
+notnortheast
+         cmp #2
+         bne noteast
+         jmp east
+noteast
+         cmp #3
+         bne notsoutheast
+         jmp southeast
+notsoutheast
+         cmp #4
+         bne notsouth
+         jmp south
+notsouth
+         cmp #5
+         bne notsouthwest
+         jmp southwest
+notsouthwest
+         cmp #6
+         bne notwest
+         jmp west
+notwest
+         cmp #7
+         bne notnorthwest
+         jmp northwest
+notnorthwest
+         ;North set to default
+north
+         jsr scrollup
+         rts
+
+northeast jsr scrollup
+         jsr scrollright
+         rts
+
+east     jsr scrollright
+         rts
+
+southeast jsr scrolldown
+         jsr scrollright
+         rts
+
+south    jsr scrolldown
+         rts
+southwest
+         jsr scrolldown
+         jsr scrollleft
+         rts
+west     jsr scrollleft
+         rts
+northwest jsr scrollup
+         jsr scrollleft
+         rts
+
+         ;Scroll tile upwards
+
+scrollup lda scrtile1
+         pha
+         ldx #$00
+uploop1  lda scrtile1+1,x
+         sta scrtile1,x
+         inx
+         cpx #7
+         bne uploop1
+         pla
+         sta scrtile1+7
+
+         lda scrtile3
+         pha
+         ldx #$00
+uploop2  lda scrtile3+1,x
+         sta scrtile3,x
+         inx
+         cpx #7
+         bne uploop2
+         pla
+         sta scrtile3+7
+
+         lda scrtile2
+         pha
+         ldx #$00
+uploop3  lda scrtile2+1,x
+         sta scrtile2,x
+         inx
+         cpx #7
+         bne uploop3
+         pla
+         sta scrtile2+7
+
+         lda scrtile4
+         pha
+         ldx #$00
+uploop4  lda scrtile4+1,x
+         sta scrtile4,x
+         inx
+         cpx #7
+         bne uploop4
+         pla
+         sta scrtile4+7
+         rts
+
+         ;Scroll tile downwards
+
+scrolldown
+         lda scrtile1+7
+         pha
+         ldx #6
+downloop1
+         lda scrtile1,x
+         sta scrtile1+1,x
+         dex
+         bpl downloop1
+         pla
+         sta scrtile1
+         lda scrtile3+7
+         pha
+         ldx #6
+downloop2
+         lda scrtile3,x
+         sta scrtile3+1,x
+         dex
+         bpl downloop2
+         pla
+         sta scrtile3
+         lda scrtile2+7
+         pha
+         ldx #6
+downloop3
+         lda scrtile2,x
+         sta scrtile2+1,x
+         dex
+         bpl downloop3
+         pla
+         sta scrtile2
+         lda scrtile4+7
+         pha
+         ldx #6
+downloop4
+         lda scrtile4,x
+         sta scrtile4+1,x
+         dex
+         bpl downloop4
+         pla
+         sta scrtile4
+         rts
+
+         ;Scroll tile data left
+
+scrollleft
+         ldx #$00
+leftloop1
+         lda scrtile1,x
+         asl a
+         rol scrtile2,x
+         rol scrtile1,x
+         inx
+         cpx #7
+         bne leftloop1
+         ldx #$00
+leftloop2
+         lda scrtile3,x
+         asl a
+         rol scrtile4,x
+         rol scrtile3,x
+         inx
+         cpx #7
+         bne leftloop2
+         rts
+
+         ;Scroll tiles to the right
+
+scrollright
+         ldx #$00
+rightloop1
+         lda scrtile1,x
+
+         lsr a
+         ror scrtile2,x
+         ror scrtile1,x
+         inx
+         cpx #7
+         bne rightloop1
+         ldx #$00
+rightloop2
+         lda scrtile3,x
+         lsr a
+         ror scrtile4,x
+         ror scrtile3,x
+         inx
+         cpx #7
+         bne rightloop2
+         rts
+
+         ;Time the tile motion
+
+timemotion
+         inc tilewaitdelay
+         lda tilewaitdelay
+         beq switchtonext
+
+         rts
+
+switchtonext inc tiledir
+         inc $d020
+         lda tiledir
+         cmp #8
+         beq resetdir0
+         rts
+resetdir0
+         lda #$00
+         sta tiledir
+         rts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;---------------------------------------
+;Game pointers
+
+rt       .byte 0 ;Raster timer
+tiledelay .byte 0 ;Tile scroll delay
+lasdelay .byte 0
+tilewaitdelay .byte 0
+tiledir  .byte 0
+
+objpos   .byte 0,0,0,0,0,0,0,0
+         .byte 0,0,0,0,0,0,0,0
+aimode   .byte 0
+              ;^Sprite position table
+
+;Scoring characters
+
+scoretbl1 .byte $47,$49,$4c,$4e,$50
+         .byte $52,$54,$56,$58,$6d
+
+scoretbl2 .byte $48,$48,$4d,$4f,$51
+         .byte $53,$55,$57,$59,$6e
+
+scoretbl3 .byte $5a,$5c,$5f,$61,$63
+         .byte $65,$67,$69,$6b,$80
+
+scoretbl4 .byte $5b,$5d,$60,$62,$64
+         .byte $66,$68,$6a,$6c,$81
+

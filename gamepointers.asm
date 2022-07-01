@@ -445,3 +445,46 @@ skillleveltable2:
 			.byte $31 //  1 crab
 			
 .import source "sfx.asm"
+
+// Decrunch positions (skill levels)
+
+chardecrlo:	.byte <beach1charsend
+			.byte <beach2charsend
+			.byte <beach3charsend
+			.byte <beach1charsend
+			.byte <beach2charsend
+			
+chardecrhi:	.byte >beach1charsend 
+			.byte >beach2charsend 
+			.byte >beach3charsend 
+			.byte >beach1charsend 
+			.byte >beach2charsend 
+			
+screendecrlo:
+			.byte <beach1screenend
+			.byte <beach2screenend
+			.byte <beach3screenend
+			.byte <beach1screenend
+			.byte <beach2screenend
+			
+screendecrhi:
+			.byte >beach1screenend
+			.byte >beach2screenend
+			.byte >beach3screenend
+			.byte >beach1screenend
+			.byte >beach2screenend 
+			
+attribsdecrlo:
+			.byte <beach1attribsend
+			.byte <beach2attribsend
+			.byte <beach3attribsend
+			.byte <beach1attribsend
+			.byte <beach2attribsend
+			
+attribsdecrhi:
+			.byte >beach1attribsend 
+			.byte >beach2attribsend
+			.byte >beach3attribsend
+			.byte >beach1attribsend
+			.byte >beach2attribsend
+			

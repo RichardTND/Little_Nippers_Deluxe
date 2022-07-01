@@ -335,6 +335,9 @@ gameirq:	sta stacka+1
 			sta $dd0d 
 			lda #$00
 			sta $d012
+			ldx #$0e
+			dex
+			bne *-1
 			
 			lda #$1e
 			sta $d018
@@ -368,7 +371,7 @@ gameirq2:	sta stacka2+1
 			stx stackx2+1
 			sty stacky2+1
 			asl $d019 
-			lda #$f0 
+			lda #$f1
 			sta $d012 
 charsm:		lda #$12
 			sta $d018 
@@ -529,6 +532,8 @@ setgrtext:  lda getreadytext,x
 // fire button and spacebar to be pressed in order
 // to start the game.
 
+		
+
 waittoplay:
 			lda $dc00
 			lsr
@@ -559,6 +564,8 @@ waittoplay2:
 // score panel charset.
 
 readytoplaynow:
+
+			
 			lda #0
 			sta firebutton
 			jsr drawgamescreen
@@ -624,7 +631,6 @@ expandloop:	lda objpos+1,x
 // Animation 
 
 animation:	jsr animsprites 
-			jsr animbackground
 			jsr runnerscode
 			jsr pointsprcode
 			rts
@@ -702,53 +708,7 @@ spranimmain:
 animloop:	ldx #0
 			stx spr_anim_pointer
 			rts
-					
-// In game background animation 
-
-animbackground:
-
-			lda chr_anim_delay
-			cmp #4
-			beq dochranim
-			inc chr_anim_delay 
-			rts 
-dochranim:	lda #0
-			sta chr_anim_delay 
-			lda $0800+(228*8)+7
-			sta chr_anim_store1
-			lda $0800+(229*8)+7
-			sta chr_anim_store2 
-			ldx #7
-scrollchr:	lda $0800+(228*8)-1,x 
-			sta $0800+(228*8),x
-			lda $0800+(229*8)-1,x 
-			sta $0800+(229*8),x 
-			dex
-			bpl scrollchr 
-			lda chr_anim_store1
-			sta $0800+(228*8)
-			lda chr_anim_store2
-			sta $0800+(229*8)
-			ldx #$00
-shiftcolumn: 	
-			lda $0800+(228*8),x 
-			lsr 
-			ror $0800+(228*8),x 
-			inx 
-			cpx #$08 
-			bne shiftcolumn
-			ldx #$00
-shiftcolumn2:
-			lda $0800+(229*8),x
-			lsr 
-			ror $0800+(229*8),x 
-		 	inx 
-			cpx #$08
-			bne shiftcolumn2
-			rts
-
-			rts
-			
+	
 // Player game control 
 crabdeathanim:
 			lda splash_spr
@@ -1939,8 +1899,47 @@ putstatus:	lda quotatext,x
 			rts
 	
 // Init routine (Draw game screen)
+// first, set the lo/hi byte of the  
+// decrunch memory, and then decrunch 
+// the game charset, screen and attribs
 
 drawgamescreen:
+		 
+			sei
+			lda #$36
+			sta $01
+			lda #$0b
+			sta $d011
+			ldx #$00
+quiet:		lda #$00
+			sta $d400,x 
+			inx 
+			cpx #$18
+			bne quiet
+			ldx skilllevel
+			lda chardecrlo,x
+			sta decrunchaddrlo
+			lda chardecrhi,x
+			sta decrunchaddrhi
+			
+			jsr decruncher
+			 
+			ldx skilllevel 
+			lda screendecrlo,x
+			sta decrunchaddrlo
+			lda screendecrhi,x
+			sta decrunchaddrhi
+			jsr decruncher 
+			ldx skilllevel 
+			lda attribsdecrlo,x
+			sta decrunchaddrlo
+			lda attribsdecrhi,x
+			sta decrunchaddrhi
+			jsr decruncher
+			lda #$35
+			sta $01
+			cli
+
 			ldx #$00
 drawscr:	lda gamescreen,x
 			sta $0400,x 
@@ -1964,6 +1963,8 @@ drawscr:	lda gamescreen,x
 			sta $d800+$2e8,x 
 			inx 
 			bne drawscr 
+			lda #$1b
+			sta $d011
 			rts			
 			
 // Sound effects player 
@@ -2245,7 +2246,7 @@ skippointsflycode:
 // number of lives the player has 
 
 bonus:		jsr synctimer
-			jsr animbackground
+		 
 			jsr subtractlivesforbonus
 			jsr score500
 			jsr updatepanel

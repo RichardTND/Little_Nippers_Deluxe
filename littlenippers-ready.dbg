@@ -1,0 +1,49 @@
+<C64debugger version="1.0">
+   <Sources values="INDEX,FILE">
+      0,KickAss.jar:/include/autoinclude.asm
+      1,C:\c64\projects\KICKASSEMBLER\Little_Nippers_Deluxe\littlenippers-ready.asm
+   </Sources>
+
+   <Segment name="Default" dest="" values="START,END,FILE_IDX,LINE1,COL1,LINE2,COL2">
+      <Block name="Unnamed">
+         $0801,$44f0,1,4,2,4,8
+         $44f1,$44f2,1,5,2,5,4
+         $44f3,$44f5,1,6,2,6,4
+         $44f6,$44f8,1,7,2,7,4
+         $44f9,$44fa,1,8,2,8,4
+         $44fb,$44fc,1,9,8,9,10
+         $44fd,$44ff,1,10,2,10,4
+         $4500,$4502,1,11,2,11,4
+         $4503,$4505,1,12,2,12,4
+         $4506,$4508,1,13,2,13,4
+         $4509,$450a,1,14,2,14,4
+         $450b,$450d,1,15,2,15,4
+         $450e,$4510,1,16,2,16,4
+         $4511,$4513,1,17,2,17,4
+         $4514,$4516,1,18,2,18,4
+         $4517,$4517,1,19,2,19,4
+         $4518,$4519,1,20,2,20,4
+         $451a,$451b,1,21,2,21,4
+         $451c,$451e,1,23,2,23,4
+         $451f,$4521,1,24,2,24,4
+         $4522,$4522,1,25,2,25,4
+         $4523,$4524,1,26,2,26,4
+         $4525,$4526,1,27,2,27,4
+         $4527,$4527,1,28,2,28,4
+         $4528,$454f,1,31,7,31,11
+      </Block>
+   </Segment>
+
+   <Labels values="SEGMENT,ADDRESS,NAME,START,END,FILE_IDX,LINE1,COL1,LINE2,COL2">
+      Default,$44fb,clrsc,1,9,1,9,6
+      Default,$451c,putliner,1,22,1,22,9
+      Default,$4528,line,1,31,1,31,5
+   </Labels>
+
+   <Breakpoints values="SEGMENT,ADDRESS,ARGUMENT">
+   </Breakpoints>
+
+   <Watchpoints values="SEGMENT,ADDRESS1,ADDRESS2,ARGUMENT">
+   </Watchpoints>
+
+</C64debugger>

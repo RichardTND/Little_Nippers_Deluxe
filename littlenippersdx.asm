@@ -15,7 +15,7 @@ https://richard-tnd.itch.io/littlenippers
 --------------------------------------*/
 
 // Variables & constants
-.var ready_to_crunch = 1 //Change to 1 when ready to use cruncher
+.var ready_to_crunch = 0 //Change to 1 when ready to use cruncher
 .var cheatmode = 0
 
 .const screen = $0400
@@ -30,6 +30,10 @@ https://richard-tnd.itch.io/littlenippers
 .const musicinit = $7000
 .const musicplay = $7003
 .const tscreen = $c400
+
+.const decruncher = $1800
+.const decrunchaddrlo = $1810
+.const decrunchaddrhi = $1811
 
 .var crab_pos_x1 = $10
 .var crab_pos_x2 = $24
@@ -67,27 +71,17 @@ https://richard-tnd.itch.io/littlenippers
 .var listlen = 10
 
 //--------------------------------------
-// Main game charset data 
 
-.if (ready_to_crunch==1) {
-		* = $0800 "GAME SCREEN CHARSET"
-gamecharset:
-	.import binary "c64/gamecharset.bin"
-} else {
 // Basic 16384
 BasicUpstart2(CodeStart)
-}
-.if (ready_to_crunch ==1) {
 
-} else {
-	* = $1000 "GAME SCREEN CHARSET"
-}
-gamecharset:
-	.import binary "c64/gamecharset.bin"
+	* = $1800 "EXOMIZER DECRUNCH ROUTINE"
+	.import c64 "c64/exodecruncher.prg"
 //--------------------------------------	
 // Main game sprite data
 			* = $2000 "SPRITES"
 	.import binary "c64/gamesprites.bin"
+	
 //--------------------------------------
 // Status panel data 
 
@@ -104,16 +98,58 @@ statusmap:
 //to fit.
 			* = $4000 "GAME CODE"
 	.import source "onetime.asm"
+//--------------------------------------
+// Compressed game data
+//--------------------------------------
+// Crunched data 
+	*=* "EXO CRUNCHED DATA"
+	
+	 	 
+beach1chars:
+	.import c64 "beachcharset1.prg"
+beach1charsend: .byte 0 
+	 
+beach1screen:
+	.import c64 "beachscreen1.prg"
+beach1screenend: .byte 0 
+	 
+beach1attribs:
+	.import c64 "beachattribs1.prg"
+beach1attribsend: .byte 0 
+	 	 
+beach2chars:
+	.import c64 "beachcharset2.prg"
+beach2charsend: .byte 0 
+	  
+beach2screen:
+	.import c64 "beachscreen2.prg"
+beach2screenend: .byte 0 
+	 	 
+beach2attribs:
+	.import c64 "beachattribs2.prg"
+beach2attribsend: .byte 0
+ 	 
+beach3chars:
+	.import c64 "beachcharset3.prg"
+beach3charsend: .byte 0 
+	 	 
+beach3screen:
+	.import c64 "beachscreen3.prg"
+beach3screenend: .byte 0 
+	 	  
+beach3attribs:
+	.import c64 "beachattribs3.prg"
+beach3attribsend: .byte 0 
 //--------------------------------------	
 // Charset attributes data
-			* = * "GAME SCREEN COLOUR ATTRIBUTES"
+			* = $6700 "GAME SCREEN COLOUR ATTRIBUTES"
 attribs:	
-	.import binary "c64/gameattribs.bin"
+	 
 //--------------------------------------	
 // Game screen data
-			* = * "GAME SCREEN"
+			* = $6800 "GAME SCREEN"
 gamescreen:	
-	.import binary "c64/gamescreen.bin"
+	 
 //--------------------------------------	
 // Title music 
 			* = $7000 "MUSIC"
@@ -137,11 +173,18 @@ logocolour:
 	* = $a000 "LOGO BITMAP"
 	.import c64 "c64/logo_bitmap.prg"
 //--------------------------------------
+
+
+
+	
+	
+	
+	
+//--------------------------------------
 // Screen memory for title screen to be
 // set to BANK 0, $c400-$c7e8
 // 2x2 for title screen charset 
 	* = $e000 "Titlescreen Charset"
-	//import c64 "c64/2x2charset.prg"
-	.import c64 "c64/padua.prg"
+	.import c64 "c64/2x2charset.prg"
 //--------------------------------------
 
