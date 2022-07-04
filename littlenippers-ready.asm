@@ -1,4 +1,5 @@
-//Little Nippers - Game Decruncher
+// Little Nippers - Game Decruncher 
+// (Cruel Cruncher V2.5+/Cross style)
 
 	*=$0801
 	.import c64 "littlenippersdx.exo"
@@ -28,4 +29,4 @@ putliner:
 	rts
 	
 	//.text "0123456789012345678901234567890123456789"
-line: .text "unleashing the grumpy crabs in a moment!"
+line: .text "- prepare to launch those grumpy crabs -"

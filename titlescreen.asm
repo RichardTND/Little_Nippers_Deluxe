@@ -407,7 +407,7 @@ titleloop2:
 
 upscroll:
 	lda ydelay 
-	cmp #2
+	cmp #1
 	beq scrollup
 	inc ydelay
 skipshift:

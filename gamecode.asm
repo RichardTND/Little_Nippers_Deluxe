@@ -577,9 +577,13 @@ drawscore:  ldy statusmap,x
 			cpx #$28 
 			bne drawscore	
 			jsr updatepanel		
-			lda #$07
-			sta $d020 
-			sta $d021
+			lda beachcolourscheme1
+			sta $d020
+			sta $d021 
+			lda beachcolourscheme2
+			sta $d022 
+			lda beachcolourscheme3
+			sta $d023
 			lda #$03
 			sta banksm+1
 			lda #$12
@@ -612,7 +616,7 @@ synctimer:	lda #0
 			sta rt
 			cmp rt 
 			beq *-3
-			
+			jsr bganimation
 // Expand sprite MSB also 
 		
 expandmsb:	ldx #$00
@@ -1661,8 +1665,9 @@ resetmiss:
 			sta missedtext
 			sta missedtext+1
 			jmp playsetup
+doscore:		
 			
-doscore:
+			
 			cmp #runner_height1
 			bne not500pts1
 
@@ -1822,7 +1827,8 @@ score100:	jsr scoremain
 			
 			
 
-scoremain:  inc scoretext+3
+scoremain:  ldy #0
+scoreloop0:	inc scoretext+3
 			ldx #$03
 scoreloop:	lda scoretext,x 
 			cmp #$3a 
@@ -1846,6 +1852,9 @@ vscoreok:	dex
 			lda virtualscore+1
 			cmp #$31
 			beq jellyfish_awarded 
+			iny
+			cpy skilllevelplus1
+			bne scoreloop0
 			rts
 
 			// After scoring 10,000 points the next launch 
@@ -1917,6 +1926,11 @@ quiet:		lda #$00
 			cpx #$18
 			bne quiet
 			ldx skilllevel
+			
+			// Send charset to exo
+			// decrunch routine
+			// then decrunch it!
+			
 			lda chardecrlo,x
 			sta decrunchaddrlo
 			lda chardecrhi,x
@@ -1924,21 +1938,77 @@ quiet:		lda #$00
 			
 			jsr decruncher
 			 
+			// Send screen to exo 
+			// decrunch routine then 
+			// decrunch it!
+			 
 			ldx skilllevel 
 			lda screendecrlo,x
 			sta decrunchaddrlo
 			lda screendecrhi,x
 			sta decrunchaddrhi
 			jsr decruncher 
+			
+			// Send colour data to exo 
+			// decrunch routine then 
+			// decrunch it!
+			
 			ldx skilllevel 
 			lda attribsdecrlo,x
 			sta decrunchaddrlo
 			lda attribsdecrhi,x
 			sta decrunchaddrhi
+					
 			jsr decruncher
+				
+			// Also setup the beach  
+			// colour scheme.
+						
+			ldx skilllevel
+			lda beachd021colour,x
+			sta beachcolourscheme1
+			lda beachd022colour,x
+			sta beachcolourscheme2
+			lda beachd023colour,x
+			sta beachcolourscheme3
+			lda bonusspritelo,x
+			sta bonussprsm+1
+			lda bonusspritehi,x
+			sta bonussprsm+2
+			
+			// Selfmod bonus sprites 
+			// scoring (based on skill
+			// level)
+			
+			ldx #$00
+bonussprsm:	lda nobonusspr,x 
+			sta scoresprite1,x
+			sta scoresprite2,x
+			sta scoresprite3,x
+			sta scoresprite4,x
+			sta scoresprite5,x
+			sta scoresprite6,x
+			sta scoresprite7,x
+			inx 
+			cpx #10
+			bne bonussprsm
+			
+			// skilllevelplus is 
+			// needed in order to 
+			// calculate x score
+					
+			lda skilllevel 
+			sta skilllevelplus1
+			inc skilllevelplus1
 			lda #$35
 			sta $01
 			cli
+
+
+// Read all the data that has been 
+// de-crunched and then draw the game 
+// screen, and set correct coloured 
+// characters.
 
 			ldx #$00
 drawscr:	lda gamescreen,x
@@ -1965,6 +2035,7 @@ drawscr:	lda gamescreen,x
 			bne drawscr 
 			lda #$1b
 			sta $d011
+			
 			rts			
 			
 // Sound effects player 
@@ -2297,7 +2368,41 @@ clrloop:	lda #$20
 			sta $dae8,x
 			inx
 			bne clrloop 
-	 
+	 		rts
+			
+// -----------------------------------
+//
+// In game background animations
+//
+//------------------------------------
+
+bganimation:
+			lda bganimdelay
+			cmp #4
+			beq bganimready
+			inc bganimdelay
+			rts 
+bganimready:
+			lda #0
+			sta bganimdelay
+			lda $0fff
+			sta chartemp 
+			ldx #$07
+scrdown:	lda $0ff7,x
+			sta $0ff8,x 
+			dex 
+			bpl scrdown
+			lda chartemp
+			sta $0ff8
+			ldy #$00
+scrrt:		lda $0ff8,x
+			lsr 
+			ror $0ff8,x 
+			lsr 
+			ror $0ff8,x
+			inx 
+			cpx #7
+			bne scrrt
 			rts
 			
 	.import source "gamepointers.asm"

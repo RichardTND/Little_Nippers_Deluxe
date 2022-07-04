@@ -6,9 +6,12 @@ rt: .byte $00
 firebutton: .byte $00
 randtemp: .byte $5a 
 random: .byte %10011101,%01011011
+bganimdelay: .byte 0
+chartemp: .byte 0
 selectpointer1: .byte 0
 selectpointer2: .byte 0
 selectpointer3: .byte 0
+
 levelpointer: .byte 0
 sounddelay: .byte 0
 soundpointer: .byte 0
@@ -19,6 +22,7 @@ jellyfish_enabled: .byte 0
 snappysound:	.byte 1
 snappysoundpointer: .byte 0
 skilllevel: .byte 0
+skilllevelplus1: .byte 0
 joydelay: .byte 0
 time_delayMS: .byte 0
 time_delayS: .byte 0
@@ -26,6 +30,9 @@ penalty_enabled: .byte 0
 crab_released: .byte 0
 jingles_allowed_to_play: .byte 0
 points_sprite_released: .byte 0
+beachcolourscheme1: .byte 0
+beachcolourscheme2: .byte 0
+beachcolourscheme3: .byte 0
 // Animation and sprite pointers 
 
 spr_anim_delay: .byte 0
@@ -451,40 +458,63 @@ skillleveltable2:
 chardecrlo:	.byte <beach1charsend
 			.byte <beach2charsend
 			.byte <beach3charsend
-			.byte <beach1charsend
-			.byte <beach2charsend
+			.byte <beach4charsend
+			.byte <beach5charsend
 			
 chardecrhi:	.byte >beach1charsend 
 			.byte >beach2charsend 
 			.byte >beach3charsend 
-			.byte >beach1charsend 
-			.byte >beach2charsend 
+			.byte >beach4charsend 
+			.byte >beach5charsend 
 			
 screendecrlo:
 			.byte <beach1screenend
 			.byte <beach2screenend
 			.byte <beach3screenend
-			.byte <beach1screenend
-			.byte <beach2screenend
+			.byte <beach4screenend
+			.byte <beach5screenend
 			
 screendecrhi:
 			.byte >beach1screenend
 			.byte >beach2screenend
 			.byte >beach3screenend
-			.byte >beach1screenend
-			.byte >beach2screenend 
+			.byte >beach4screenend
+			.byte >beach5screenend 
 			
 attribsdecrlo:
 			.byte <beach1attribsend
 			.byte <beach2attribsend
 			.byte <beach3attribsend
-			.byte <beach1attribsend
-			.byte <beach2attribsend
+			.byte <beach4attribsend
+			.byte <beach5attribsend
 			
 attribsdecrhi:
 			.byte >beach1attribsend 
 			.byte >beach2attribsend
 			.byte >beach3attribsend
-			.byte >beach1attribsend
-			.byte >beach2attribsend
+			.byte >beach4attribsend
+			.byte >beach5attribsend
+			
+bonusspritelo:
+			.byte <nobonusspr
+			.byte <bonusx2spr 
+			.byte <bonusx3spr
+			.byte <bonusx4spr 
+			.byte <bonusx5spr 
+			
+bonusspritehi:
+			.byte >nobonusspr
+			.byte >bonusx2spr 
+			.byte >bonusx3spr 
+			.byte >bonusx4spr 
+			.byte >bonusx5spr
+beachd021colour:
+			.byte $07,$07,$07,$00,$07
+beachd022colour:
+			.byte $0c,$0c,$0c,$01,$0c
+beachd023colour:
+			.byte $01,$01,$01,$0c,$01
+			
+			
+			
 			

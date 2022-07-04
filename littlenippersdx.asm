@@ -70,6 +70,19 @@ https://richard-tnd.itch.io/littlenippers
 .var namelen = 9
 .var listlen = 10
 
+.const nobonusspr = $3430
+.const bonusx2spr = $32f0
+.const bonusx3spr = $3330
+.const bonusx4spr = $3370
+.const bonusx5spr = $33b0
+
+.const scoresprite1 = $2e70 
+.const scoresprite2 = $2eb0
+.const scoresprite3 = $2ef0 
+.const scoresprite4 = $2f30
+.const scoresprite5 = $2f70
+.const scoresprite6 = $2fb0
+.const scoresprite7 = $2ff0
 //--------------------------------------
 
 // Basic 16384
@@ -77,6 +90,20 @@ BasicUpstart2(CodeStart)
 
 	* = $1800 "EXOMIZER DECRUNCH ROUTINE"
 	.import c64 "c64/exodecruncher.prg"
+	
+	* = $1a00 "LEVEL 5 CRUNCHED GFX"
+beach5chars:
+	.import c64 "beachcharset5.prg"
+beach5charsend: .byte 0
+
+beach5screen:
+	.import c64 "beachscreen5.prg"
+beach5screenend: .byte 0
+
+beach5attribs:
+	.import c64 "beachattribs5.prg"
+beach5attribsend: .byte 0
+
 //--------------------------------------	
 // Main game sprite data
 			* = $2000 "SPRITES"
@@ -102,7 +129,7 @@ statusmap:
 // Compressed game data
 //--------------------------------------
 // Crunched data 
-	*=* "EXO CRUNCHED DATA"
+	*=* "LEVELS 1 TO 3 CRUNCHED DATA"
 	
 	 	 
 beach1chars:
@@ -140,6 +167,11 @@ beach3screenend: .byte 0
 beach3attribs:
 	.import c64 "beachattribs3.prg"
 beach3attribsend: .byte 0 
+
+
+
+
+
 //--------------------------------------	
 // Charset attributes data
 			* = $6700 "GAME SCREEN COLOUR ATTRIBUTES"
@@ -174,6 +206,19 @@ logocolour:
 	.import c64 "c64/logo_bitmap.prg"
 //--------------------------------------
 
+
+* = $c800 "LEVEL 4 CRUNCHED GRAPHICS"
+beach4chars:
+	.import c64 "beachcharset4.prg"
+beach4charsend: .byte 0
+
+beach4screen:
+	.import c64 "beachscreen4.prg"
+beach4screenend: .byte 0
+
+beach4attribs:
+	.import c64 "beachattribs4.prg"
+beach4attribsend: .byte 0
 
 
 	

@@ -1,0 +1,4 @@
+
+!to "beach4screen.prg",cbm
+*=$0800
+!bin "LEVELS/beach4screen.bin"
