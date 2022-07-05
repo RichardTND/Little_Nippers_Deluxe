@@ -13,6 +13,8 @@ selectpointer2: .byte 0
 selectpointer3: .byte 0
 
 levelpointer: .byte 0
+leveliscomplete: .byte 0
+bonusdelay: .byte 0
 sounddelay: .byte 0
 soundpointer: .byte 0
 soundvalue: .byte 0

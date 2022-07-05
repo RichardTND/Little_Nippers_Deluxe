@@ -1,0 +1,49 @@
+<C64debugger version="1.0">
+   <Sources values="INDEX,FILE">
+      0,KickAss.jar:/include/autoinclude.asm
+      1,C:\c64\projects\KICKASSEMBLER\Little_Nippers_Deluxe\littlenippersdisk.asm
+   </Sources>
+
+   <Segment name="Default" dest="" values="START,END,FILE_IDX,LINE1,COL1,LINE2,COL2">
+      <Block name="Unnamed">
+         $0801,$6c92,1,5,2,5,8
+         $6c93,$6c94,1,6,2,6,4
+         $6c95,$6c97,1,7,2,7,4
+         $6c98,$6c9a,1,8,2,8,4
+         $6c9b,$6c9c,1,9,2,9,4
+         $6c9d,$6c9e,1,10,8,10,10
+         $6c9f,$6ca1,1,11,2,11,4
+         $6ca2,$6ca4,1,12,2,12,4
+         $6ca5,$6ca7,1,13,2,13,4
+         $6ca8,$6caa,1,14,2,14,4
+         $6cab,$6cac,1,15,2,15,4
+         $6cad,$6caf,1,16,2,16,4
+         $6cb0,$6cb2,1,17,2,17,4
+         $6cb3,$6cb5,1,18,2,18,4
+         $6cb6,$6cb8,1,19,2,19,4
+         $6cb9,$6cb9,1,20,2,20,4
+         $6cba,$6cbb,1,21,2,21,4
+         $6cbc,$6cbd,1,22,2,22,4
+         $6cbe,$6cc0,1,24,2,24,4
+         $6cc1,$6cc3,1,25,2,25,4
+         $6cc4,$6cc4,1,26,2,26,4
+         $6cc5,$6cc6,1,27,2,27,4
+         $6cc7,$6cc8,1,28,2,28,4
+         $6cc9,$6cc9,1,29,2,29,4
+         $6cca,$6cf1,1,32,7,32,11
+      </Block>
+   </Segment>
+
+   <Labels values="SEGMENT,ADDRESS,NAME,START,END,FILE_IDX,LINE1,COL1,LINE2,COL2">
+      Default,$6c9d,clrsc,1,10,1,10,6
+      Default,$6cbe,putliner,1,23,1,23,9
+      Default,$6cca,line,1,32,1,32,5
+   </Labels>
+
+   <Breakpoints values="SEGMENT,ADDRESS,ARGUMENT">
+   </Breakpoints>
+
+   <Watchpoints values="SEGMENT,ADDRESS1,ADDRESS2,ARGUMENT">
+   </Watchpoints>
+
+</C64debugger>

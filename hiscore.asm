@@ -139,8 +139,9 @@ put_name:
 		sta ($d1),y 
 		dey 
 		bpl put_name 
-		//jsr save_hi_score 
+		jsr SaveHiScore
 no_hiscore:
+
 		jmp titlescreencode
 
 // Main name entry. We need to use VIC BANK #$00 for 

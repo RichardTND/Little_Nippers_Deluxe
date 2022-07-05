@@ -411,13 +411,7 @@ mainstart:  lda #$03
 			sta snappysound
 			sta snappysoundpointer
 			
-			ldx #$00
-setstartpos:
-			lda startpos,x
-			sta objpos,x 
-			inx 
-			cpx #16
-			bne setstartpos
+			
 			jsr expandmsb
 		
 			jsr setnewpositionr1
@@ -503,6 +497,7 @@ grcol:		lda #$20
 			bne grcol
 			lda #0
 			sta $d015
+			sta leveliscomplete
 			ldx #$00
 			ldy #$00
 setgrtext:  lda getreadytext,x 
@@ -565,9 +560,24 @@ waittoplay2:
 
 readytoplaynow:
 
+			ldx #$00
+setstartpos:
+			lda startpos,x
+			sta objpos,x 
+			inx 
+			cpx #16
+			bne setstartpos
 			
 			lda #0
 			sta firebutton
+			sta leveliscomplete
+			lda #1
+			ldx #2
+			ldy #3
+			sta runner_speed1
+			stx runner_speed2 
+			sty runner_speed3
+			
 			jsr drawgamescreen
 			ldx #$00
 drawscore:  ldy statusmap,x 
@@ -990,7 +1000,8 @@ missok:		jsr updatepanel
 // The total number of misses has 
 // expired. The game is over.
 
-gameover:	
+gameover:	lda #$0b
+			sta $d011
 			jsr clearscreenaway
 			ldx #$00
 settored:	lda #$02
@@ -1025,6 +1036,8 @@ showgameover:
 			inx
 			cpx #20 
 			bne showgameover
+			lda #$1b
+			sta $d011
 			lda #1 
 			sta jingles_allowed_to_play
 			lda #2 
@@ -1152,6 +1165,13 @@ storerunner1right:
 			sta objpos+4
 			rts
 setnewpositionr1:
+			lda leveliscomplete 
+			beq runner1canrun 
+			lda #0
+			sta runner_speed1
+			rts 
+			
+runner1canrun:
 			jsr randomread
 			and #$0f
 			sta selectpointer1
@@ -1194,7 +1214,7 @@ storeleftrunner1:
 			
 			// Runner 2
 
-runner2:	
+runner2:			
 			//When not hit, head on body
 			lda objpos+7
 			clc
@@ -1243,7 +1263,12 @@ storerunner2right:
 			sta objpos+8
 			rts
 setnewpositionr2:
-			 
+			lda leveliscomplete 
+			beq runner2canrun 
+			lda #0
+			sta runner_speed2
+			rts 
+runner2canrun:	 
 			jsr randomread
 			and #$0f
 			sta selectpointer2
@@ -1333,6 +1358,12 @@ storerunner3right:
 			sta objpos+12
 			rts
 setnewpositionr3:
+			lda leveliscomplete 
+			beq runner3canrun 
+			lda #0
+			sta runner_speed3
+			rts 
+runner3canrun:			
 			jsr randomread
 			and #$0f
 			sta selectpointer3
@@ -1539,9 +1570,38 @@ checksecondq:
 			beq levelcomplete
 			rts 
 levelcomplete:
+			lda #0
+			sta objpos+0
+			sta objpos+1
+				
+			lda #1
+			sta leveliscomplete 
+levelcompleteloop:
+			jsr synctimer 
+			jsr animsprites
+			jsr runnerscode 
+			jsr checkrunnersallout 
+			jmp levelcompleteloop
+			
+checkrunnersallout:
+			lda runner_speed1
+			beq runner1out 
+			rts 
+runner1out:	lda runner_speed2 
+			beq runner2out 
+			rts 
+runner2out:	lda runner_speed3 
+			beq runner3out 
+			rts
+runner3out:
+
+scorebonuslooponlevelcompletion:			
+			
+			
 
 			// Step 1 - Wait until the score tab has finished 
 			jsr synctimer
+			
 			lda #0
 			sta objpos
 			lda objpos+15
@@ -1549,14 +1609,32 @@ levelcomplete:
 			sbc #4
 			cmp #$20 
 			bcs stillavailable
+			
 			jsr sfx_welldone
-		 
+			
+
 			jmp finishednow
 stillavailable:
-			jmp levelcomplete
+			jmp scorebonuslooponlevelcompletion
 finishednow:
+			lda #0 
+			sta bonusdelay 
+			
+bonuscountdown:
+			jsr synctimer
+			lda bonusdelay 
+			cmp #5
+			beq bonuscountdown2 
+			inc bonusdelay 
+			jmp bonuscountdown
+bonuscountdown2:		
+			lda #0
+			sta bonusdelay
 			jsr bonus
 			jsr updatepanel
+			
+			jmp bonuscountdown
+bonusphasefinished:			
 			lda #0
 			sta firebutton 
 			
@@ -1604,6 +1682,8 @@ putwelldone:
 			inx
 			cpx #20 
 			bne putwelldone 
+			lda #$1b
+			sta $d011
 			lda #well_done_jingle
 			jsr musicinit
 
@@ -1990,7 +2070,7 @@ bonussprsm:	lda nobonusspr,x
 			sta scoresprite6,x
 			sta scoresprite7,x
 			inx 
-			cpx #10
+			cpx #$10
 			bne bonussprsm
 			
 			// skilllevelplus is 
@@ -2316,18 +2396,23 @@ skippointsflycode:
 // the score panel according to the 
 // number of lives the player has 
 
-bonus:		jsr synctimer
+bonus:		 
 		 
 			jsr subtractlivesforbonus
-			jsr score500
+			jsr score200
 			jsr updatepanel
 			lda missedtext+1
 			cmp #$30
-			bne bonus 
+			beq bonuscheck2
+			rts
+bonuscheck2:			
 			lda missedtext
 			cmp #$30
-			bne bonus 
-			rts
+			beq finishedcountdown
+			rts 
+finishedcountdown:
+			jmp bonusphasefinished
+			
 subtractlivesforbonus:
 			dec missedtext+1
 			lda missedtext+1

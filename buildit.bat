@@ -1,7 +1,10 @@
 echo off
+
+REM *** REMOVE ALL OLD COMPILED DATA ***
+
 del *.prg
 
-rem ACME compiler 
+REM *** COMPILE RAW LEVEL GRAPHICS BINARY DATA AS C64 PROGRAMS ***
 
 c:\c64\tools\acme\acme.exe b1a.txt
 c:\c64\tools\acme\acme.exe b1b.txt
@@ -19,7 +22,7 @@ c:\c64\tools\acme\acme.exe b5a.txt
 c:\c64\tools\acme\acme.exe b5b.txt 
 c:\c64\tools\acme\acme.exe b5c.txt
  
-rem Compress level graphics data with Exomizer
+REM *** COMPRESS ALL LEVEL GRAPHICS USING EXOMIZER V2.0 (V3 IS NOT COMPATIBLE FOR THE DECRUNCH SOURCE I USE) ***
 
 c:\c64\tools\exomizer20\win32\exomizer.exe mem beach1charset.prg,$0800 -o beachcharset1.prg -q
 c:\c64\tools\exomizer20\win32\exomizer.exe mem beach1screen.prg,$6800 -o beachscreen1.prg -q
@@ -41,11 +44,26 @@ c:\c64\tools\exomizer20\win32\exomizer.exe mem beach5charset.prg,$0800 -o beachc
 c:\c64\tools\exomizer20\win32\exomizer.exe mem beach5screen.prg,$6800 -o beachscreen5.prg -q
 c:\c64\tools\exomizer20\win32\exomizer.exe mem beach5attribs.prg,$6700 -o beachattribs5.prg -q
 
+REM *** ASSEMBLE MAIN GAME PROJECT ***
+
 java -jar "c:\c64\tools\kickassembler\kickass.jar" littlenippersdx.asm
 
 if not exist littlenippersdx.prg exit
 
-rem *** EXOMIZER - CRUEL CRUNCHER V2.5+/CROSS STYLE ***
-c:\c64\tools\exomizer\win32\exomizer.exe sfx $4000 littlenippersdx.prg -o littlenippersdx.exo -s "jsr highest_addr_out" -x "sty $d020 inc $0428" -q
+REM *** EXOMIZER - CRUEL CRUNCHER DECRUNCH STYLE ***
+c:\c64\tools\exomizer\win32\exomizer.exe sfx $4000 littlenippersdx.prg -o littlenippersdx.exo -s "jsr highest_addr_out" -n
 java -jar "c:\c64\tools\kickassembler\kickass.jar" littlenippers-ready.asm
-c:\c64\tools\vice\x64sc.exe littlenippers-ready.prg
+java -jar "c:\c64\tools\kickassembler\kickass.jar" littlenippersintro.asm 
+c:/c64/tools/exomizer/win32/exomizer.exe sfx $080d littlenippersintro.PRG -o littlenippersdisk.exo -s "jsr highest_addr_out" -n 
+java -jar "c:\c64\tools\kickassembler\kickass.jar" littlenippersdisk.asm
+
+REM *** BUILD TND INTRO LINKER RELEASE FOR DISK *** 
+c:/c64/tools/exomizer/win32/exomizer.exe sfx $0810 tndlinker.rcb littlenippersdisk.prg,$2c00 -o little_nippers_disk.prg   -q
+
+REM *** BUILD TND INTRO LINKER RELEASE FOR TAPE ***
+c:/c64/tools/exomizer/win32/exomizer.exe sfx $0810 tndlinker.rcb littlenippers-ready.prg,$2c00 -o little_nippers_tape.prg  -q
+
+REM *** RUN DISK IN VICE ***
+c:\c64\tools\vice\x64sc.exe little_nippers_disk.prg
+
+echo "COMPLETE BUILD FINISHED ..."

@@ -16,7 +16,7 @@ ntsc:		lda #0
 			
 skipsystemmode:			
 
-           
+           jsr LoadHiScores
             // Automatically copy and paste first place hi 
             // score position to the in hi score panel
 

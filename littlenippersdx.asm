@@ -88,8 +88,15 @@ https://richard-tnd.itch.io/littlenippers
 // Basic 16384
 BasicUpstart2(CodeStart)
 
+	* = $1000 "DISK LOADER/SAVER RTNS"
+	.import source "diskaccess.asm" 
+
+//--------------------------------------
+	
 	* = $1800 "EXOMIZER DECRUNCH ROUTINE"
 	.import c64 "c64/exodecruncher.prg"
+
+//--------------------------------------
 	
 	* = $1a00 "LEVEL 5 CRUNCHED GFX"
 beach5chars:
@@ -105,6 +112,7 @@ beach5attribs:
 beach5attribsend: .byte 0
 
 //--------------------------------------	
+
 // Main game sprite data
 			* = $2000 "SPRITES"
 	.import binary "c64/gamesprites.bin"
@@ -124,6 +132,7 @@ statusmap:
 //Main code (Should be small enough 
 //to fit.
 			* = $4000 "GAME CODE"
+	
 	.import source "onetime.asm"
 //--------------------------------------
 // Compressed game data
@@ -167,10 +176,6 @@ beach3screenend: .byte 0
 beach3attribs:
 	.import c64 "beachattribs3.prg"
 beach3attribsend: .byte 0 
-
-
-
-
 
 //--------------------------------------	
 // Charset attributes data
