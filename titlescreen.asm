@@ -14,6 +14,13 @@ checkforhiscore:
 	lda #0
 	sta $d019
 	sta $d01a
+	sta skilllevel
+	lda skilllevel
+	clc 
+	adc #$31
+	sta skilllevelchar
+	lda #0
+	
 	sta firebutton
 	sta gameoptionmode
 	sta $d020 
@@ -653,6 +660,9 @@ scrolltext:
   .text "      (c) 2022      "
   .text " the new dimension  "
   .text "                    "
+  .text " brought to you by  "
+  .text "zzap 64 micro action"
+  .text "                    "
   .text "code, sfx, charsets "
   .text "      and music     "
   .text "         by         "
@@ -672,9 +682,7 @@ scrolltext:
   .text "    martin piper    "
   .text "                    "
   .text "                    "
-  .text " press spacebar or  "
-  .text "fire on any joystick"
-  .text "      to play!      "
+  
   .text "                    "
   .text "--------------------"
   .text "   the snap happy   "
@@ -715,7 +723,32 @@ hiscore10: .text "011000"
 HiScoreTableEnd:
 	.text "                    "
 	.text "--------------------"
-	
+	.text "                    "
+	.text " using fire on any  "
+	.text "joystick or spacebar"
+	.text "launch crabs out of "
+	.text "the buckets and nip "
+	.text "a limited number of "
+	.text "kiddies feet to win "
+	.text "each level.         "
+	.text "                    "
+	.text "for every 10,000 pts"
+	.text "you can launch a    "
+	.text "jellyfish on your   "
+	.text "next turn.          "
+	.text "                    "
+	.text "crabs are lost when "
+	.text "either the crab or  "
+	.text "jellyfish ends up   "
+	.text "in the deep area of "
+	.text "the sea.            "
+	.text "                    "
+	.text "press space or fire "
+	.text "to play and have    "
+	.text "loads of fun.       "
+	.text "                    "
+	.text "--------------------"
+	.text "                    "
 
   
 .byte 0 

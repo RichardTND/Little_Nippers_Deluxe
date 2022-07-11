@@ -117,25 +117,6 @@ gamestart_freq2:
 				.byte $28,$2c,$30,$34
 				.byte $38,$3c,$40,$00
 				
-// Game over SFX - To do: Replace with game over jingle music
-
-gameover_ad:	.byte $0a
-gameover_sr:	.byte $0a 
-gameover_wav:	.byte $41,$41,$41,$41
-				.byte $41,$41,$41,$41
-				.byte $41,$41,$41,$41
-				.byte $41,$41,$00,$00
-				
-gameover_freq1: .byte $14,$12,$10,$0c
-				.byte $14,$12,$10,$0c
-				.byte $14,$12,$10,$0c
-				.byte $14,$12,$10,$0c
-			
-
-gameover_freq2: .byte $14,$12,$10,$0c
-				.byte $14,$12,$10,$0c
-				.byte $14,$12,$10,$0c
-				.byte $14,$12,$10,$0c
 
 // Crab / Jellyfish snappy movement waveform                
 				

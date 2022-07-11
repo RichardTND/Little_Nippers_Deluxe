@@ -445,12 +445,14 @@ skillleveltable1:
 			.byte $31 // 10 crabs 
 			.byte $30 //  5 crabs 
 			.byte $30 // 01 crab
+			.byte $30 // 01 crab
 			
 skillleveltable2:
 			.byte $30 // 20 crabs 
 			.byte $35 // 15 crabs 
 			.byte $30 // 10 crabs 
 			.byte $35 //  5 crabs
+			.byte $31 //  1 crab
 			.byte $31 //  1 crab
 			
 .import source "sfx.asm"
@@ -511,11 +513,11 @@ bonusspritehi:
 			.byte >bonusx4spr 
 			.byte >bonusx5spr
 beachd021colour:
-			.byte $07,$07,$07,$00,$07
+			.byte $07,$07,$07,$07,$00,$00
 beachd022colour:
-			.byte $0c,$0c,$0c,$01,$0c
+			.byte $0c,$0c,$0c,$01,$01,$01
 beachd023colour:
-			.byte $01,$01,$01,$0c,$01
+			.byte $01,$01,$01,$0c,$0c,$0c
 			
 			
 			

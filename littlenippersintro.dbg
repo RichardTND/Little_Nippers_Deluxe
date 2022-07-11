@@ -166,13 +166,13 @@
          $0978,$0978,0,215,12,215,16
       </Block>
       <Block name="INTRO MUSIC">
-         $1000,$19fd,0,221,2,221,8
+         $1000,$1a85,0,221,2,221,8
       </Block>
       <Block name="INTRO BITMAP">
          $2000,$4710,0,227,4,227,10
       </Block>
       <Block name="LINKED GAME">
-         $4800,$90a4,0,233,2,233,8
+         $4800,$9512,0,233,2,233,8
       </Block>
    </Segment>
 

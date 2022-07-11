@@ -15,7 +15,7 @@ https://richard-tnd.itch.io/littlenippers
 --------------------------------------*/
 
 // Variables & constants
-.var ready_to_crunch = 0 //Change to 1 when ready to use cruncher
+.var ready_to_crunch = 1 //Change to 1 when ready to use cruncher
 .var cheatmode = 0
 
 .const screen = $0400
@@ -30,7 +30,7 @@ https://richard-tnd.itch.io/littlenippers
 .const musicinit = $7000
 .const musicplay = $7003
 .const tscreen = $c400
-
+.const endscreen = $1200
 .const decruncher = $1800
 .const decrunchaddrlo = $1810
 .const decrunchaddrhi = $1811
@@ -70,7 +70,7 @@ https://richard-tnd.itch.io/littlenippers
 .var namelen = 9
 .var listlen = 10
 
-.const nobonusspr = $3430
+.const nobonusspr = $3ea0
 .const bonusx2spr = $32f0
 .const bonusx3spr = $3330
 .const bonusx4spr = $3370
@@ -90,8 +90,14 @@ BasicUpstart2(CodeStart)
 
 	* = $1000 "DISK LOADER/SAVER RTNS"
 	.import source "diskaccess.asm" 
-
 //--------------------------------------
+	* = $1200 "END SCREEN"
+	.import binary "c64/endscreen.bin"
+	
+//--------------------------------------
+
+	
+	
 	
 	* = $1800 "EXOMIZER DECRUNCH ROUTINE"
 	.import c64 "c64/exodecruncher.prg"
@@ -116,7 +122,9 @@ beach5attribsend: .byte 0
 // Main game sprite data
 			* = $2000 "SPRITES"
 	.import binary "c64/gamesprites.bin"
-	
+//--------------------------------------
+			* = $3400
+			.import source "ending.asm"
 //--------------------------------------
 // Status panel data 
 
@@ -178,19 +186,44 @@ beach3attribs:
 beach3attribsend: .byte 0 
 
 //--------------------------------------	
-// Charset attributes data
-			* = $6700 "GAME SCREEN COLOUR ATTRIBUTES"
-attribs:	
-	 
 //--------------------------------------	
 // Game screen data
 			* = $6800 "GAME SCREEN"
 gamescreen:	
+
+// Charset attributes data
+			* = $6C00 "GAME SCREEN COLOUR ATTRIBUTES"
+attribs:	
+	 
 	 
 //--------------------------------------	
 // Title music 
 			* = $7000 "MUSIC"
 	.import c64 "c64/music.prg"
+	
+			*= $8100 "END SCROLL TEXT ...   "
+	
+endscroll:
+	.text "£££ congratulations £££ "
+	.text "you have completed a full skill "
+	.text "level of ££££££ little nippers deluxe ££££££   "
+	.text "you will now move to a new location where "
+	.text "there will be less crabs at your disposal "
+	.text "but even more points to be scored £££    "
+	.text "press spacebar or fire to continue £££          "
+	.text "                                                "
+	.byte 0
+	
+endscroll2:
+	.text "£££ congratulations £££ you have completed "
+	.text "££££££ little nippers deluxe ££££££    there are "
+	.text "no more locations to go to and the crabs and jell"
+	.text "yfish are very pleased that it is now raining £££"
+	.text "   no pesky kids are around to disturb them £££  "
+	.text "now is the time to check if you have scored a hi "
+	.text "score position £££    press spacebar or fire to "
+	.text "continue £££                                     "
+	.byte 0
 //--------------------------------------
 // Title logo video RAM 
 	* = $8400 "LOGO VIDEO RAM"

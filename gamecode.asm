@@ -203,10 +203,11 @@ selectoron:
 			
 skilllevelup:
 			 
-			inc skilllevel 
+			
 			lda skilllevel
-			cmp #5
+			cmp #4
 			beq stayas5
+			inc skilllevel 
 			lda skilllevel 
 			clc
 			adc #$31
@@ -223,6 +224,7 @@ skillleveldown:
 			lda skilllevel 
 			beq stayas0
 			dec skilllevel 
+			lda skilllevel
 			clc
 			adc #$31
 			sta skilllevelchar
@@ -391,7 +393,9 @@ stacky2:	ldy #$00
 
 // Main start (init stuff) then set up the GET READY text
 
-mainstart:  lda #$03
+mainstart:  lda #$0b
+			sta $d011
+			lda #$03
 			sta $dd00
 			lda #0
 			sta firebutton
@@ -455,12 +459,13 @@ storspd:	lda level1_speedtable,x
 			inx 
 			cpx #16
 			bne storspd
-		
+			
 			jsr updatepanel
 			lda levelpointer 
 			clc 
 			adc #$31
 			sta levelposition
+			
 			lda #sprite_10seconds
 			sta spriteSM+1
 			lda #1 
@@ -497,6 +502,7 @@ grcol:		lda #$20
 			bne grcol
 			lda #0
 			sta $d015
+			
 			sta leveliscomplete
 			ldx #$00
 			ldy #$00
@@ -513,10 +519,12 @@ setgrtext:  lda getreadytext,x
 			inx
 			cpx #20
 			bne setgrtext
+			lda #$1b
+			sta $d011
 			lda #$18
 			sta charsm+1
 			jsr waitdelay
-
+	
 			// Disable scoring points sprite 
 
 			lda #0
@@ -626,6 +634,14 @@ synctimer:	lda #0
 			sta rt
 			cmp rt 
 			beq *-3
+.if (cheatmode ==1) {
+			lda $dc01 
+			lsr 
+			bcs nocheatskip
+			jmp bonuscountdown
+nocheatskip:
+}
+
 			jsr bganimation
 // Expand sprite MSB also 
 		
@@ -825,13 +841,13 @@ countinseconds:
 spriteSM:
 			lda #sprite_10seconds		
 			sta $07ff
-			lda #0
+			lda #9
 			sta $d02e
 			inc spriteSM+1
 			lda spriteSM+1
-			cmp #sprite_0seconds
+			cmp #sprite_0seconds+1
 			beq setup_fail
-			cmp #sprite_0seconds+1 
+			cmp #sprite_0seconds+2 
 			beq out
 			jmp nopenalty
 
@@ -992,7 +1008,7 @@ misscheck2:	lda missedtext
 			
 gamelost:			
 			jsr clearscreenaway
-			jsr sfx_gameover
+		
 			jmp gameover
 missok:		jsr updatepanel
 			rts 
@@ -1570,6 +1586,11 @@ checksecondq:
 			beq levelcomplete
 			rts 
 levelcomplete:
+			jsr sfx_welldone
+			lda #$30
+			sta quotatext+1
+			sta quotatext
+			jsr updatepanel
 			lda #0
 			sta objpos+0
 			sta objpos+1
@@ -1610,15 +1631,14 @@ scorebonuslooponlevelcompletion:
 			cmp #$20 
 			bcs stillavailable
 			
-			jsr sfx_welldone
-			
-
 			jmp finishednow
 stillavailable:
 			jmp scorebonuslooponlevelcompletion
 finishednow:
 			lda #0 
 			sta bonusdelay 
+			lda #0
+			sta soundpointer
 			
 bonuscountdown:
 			jsr synctimer
@@ -1628,8 +1648,10 @@ bonuscountdown:
 			inc bonusdelay 
 			jmp bonuscountdown
 bonuscountdown2:		
+			
 			lda #0
 			sta bonusdelay
+			 
 			jsr bonus
 			jsr updatepanel
 			
@@ -1713,12 +1735,10 @@ lcwait2:	lda $dc01
 			bvc waitcomp 
 nextlevel:  lda #0
 			sta jingles_allowed_to_play
-			lda #$00
-			sta $d011
 			inc levelpointer 
 			lda levelpointer
 			cmp #$08
-			beq resettolevel1
+			beq skillup
 
 			jmp resetmiss
 			
@@ -1726,14 +1746,15 @@ nextlevel:  lda #0
 // game moves onto the harder skill 
 // level.
 			
-resettolevel1: 
-			lda #0
-			sta levelpointer 
-			inc skilllevel
+skillup: 
+			
+			jmp displayendscreen
+			
+skipgamefinished:			
 			lda #0
 			sta firebutton
-loopskill:	lda #0
-			sta skilllevel
+loopskill:	//lda #0
+			//sta skilllevel
 restartlevel:			
 			ldx #$00
 			stx levelpointer
@@ -1744,7 +1765,7 @@ resetmiss:
 			lda #$30 
 			sta missedtext
 			sta missedtext+1
-			jmp playsetup
+			jmp mainstart
 doscore:		
 			
 			
@@ -2307,27 +2328,7 @@ sfx_welldone:
 			sta freq2+2
 			jmp initsfx 
 			
-sfx_gameover:
-			
-			lda #0
-			sta snappysound
-			lda gameover_ad
-			sta ad+1
-			lda gameover_sr 
-			sta sr+1
-			lda #<gameover_wav 
-			sta wav+1
-			lda #>gameover_wav 
-			sta wav+2
-			lda #<gameover_freq1
-			sta freq1+1
-			lda #>gameover_freq1
-			sta freq1+2
-			lda #<gameover_freq2
-			sta freq2+1
-			lda #>gameover_freq2
-			sta freq2+2
-			jmp initsfx
+		
 sfx_gamestart:
 			
 			lda #0
@@ -2489,5 +2490,10 @@ scrrt:		lda $0ff8,x
 			cpx #7
 			bne scrrt
 			rts
+			
+// Skill level completed 
+			
+			
+			
 			
 	.import source "gamepointers.asm"

@@ -224,7 +224,7 @@ intromusic:
 			
 			*=$2000 "INTRO BITMAP"
 intropic:
-   .import c64 "c64/littlenippers_pic.prg"
+   .import c64 "c64/loaderpic.prg"
 			
 // ------------------------------------			
 

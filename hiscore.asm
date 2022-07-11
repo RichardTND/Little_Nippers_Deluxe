@@ -463,7 +463,7 @@ finished_now:
 		jsr name_housekeep
 		lda #1
 		sta name_finished 
-		rts 
+		jmp name_entry_loop 
 
 		// Name housekeeping routine
 
