@@ -1,4 +1,13 @@
 // Little Nippers DX hi score detection
+
+name: .byte $20,$20,$20,$20,$20,$20,$20,$20,$20
+nameend:
+    
+hslo: .byte <hiscore1,<hiscore2,<hiscore3,<hiscore4,<hiscore5,<hiscore6,<hiscore7,<hiscore8,<hiscore9,<hiscore10
+hshi: .byte >hiscore1,>hiscore2,>hiscore3,>hiscore4,>hiscore5,>hiscore6,>hiscore7,>hiscore8,>hiscore9,>hiscore10
+nmlo: .byte <name1,<name2,<name3,<name4,<name5,<name6,<name7,<name8,<name9,<name10
+nmhi: .byte >name1,>name2,>name3,>name4,>name5,>name6,>name7,>name8,>name9,>name10
+	  .byte 0
 hi_score_checker:
 
 		// Switch off IRQs before checking high scores
@@ -14,7 +23,7 @@ hi_score_checker:
 		sta $d011
 		sta $d020
 		sta $d021
-
+		sta $02
 		//Initialise starting letter character
 
 		lda #1
@@ -139,7 +148,13 @@ put_name:
 		sta ($d1),y 
 		dey 
 		bpl put_name 
+.if (testwithnohisaver == 1)	{	
+} else {
+		lda device 
+		cmp #1
+		beq no_hiscore
 		jsr SaveHiScore
+}
 no_hiscore:
 
 		jmp titlescreencode
@@ -358,7 +373,7 @@ hi_down:
 		bit $dc00 
 		beq letter_goes_down 
 		lda #2
-		bit $dc00
+		bit $dc01
 		beq letter_goes_down 
 		jmp hi_fire
 letter_goes_down:
@@ -431,7 +446,9 @@ z_char:
 // Char selected, check for delete or end
 // character. Or switch to next char position
 // until reached ninth character position
-select:	lda letter_char 
+
+select:	
+		lda letter_char 
 check_delete_char:
 		cmp #31
 		bne check_end_char 
@@ -463,7 +480,7 @@ finished_now:
 		jsr name_housekeep
 		lda #1
 		sta name_finished 
-		jmp name_entry_loop 
+		rts
 
 		// Name housekeeping routine
 

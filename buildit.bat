@@ -50,19 +50,18 @@ java -jar "c:\c64\tools\kickassembler\kickass.jar" littlenippersdx.asm
 
 if not exist littlenippersdx.prg exit
 
-REM *** EXOMIZER - CRUEL CRUNCHER DECRUNCH STYLE ***
-c:\c64\tools\exomizer\win32\exomizer.exe sfx $4000 littlenippersdx.prg -o littlenippersdx.exo -s "jsr highest_addr_out" -x "inc $d800"
+c:\c64\tools\exomizer20\win32\exomizer.exe sfx $4000 littlenippersdx.prg -o littlenippersdx.exo -s "jsr highest_addr_out" -n
 java -jar "c:\c64\tools\kickassembler\kickass.jar" littlenippers-ready.asm
 java -jar "c:\c64\tools\kickassembler\kickass.jar" littlenippersintro.asm 
-c:/c64/tools/exomizer/win32/exomizer.exe sfx $080d littlenippersintro.PRG -o littlenippersdisk.exo -s "jsr highest_addr_out" -x "inc $d800"
+c:/c64/tools/exomizer/win32/exomizer.exe sfx $080d littlenippersintro.PRG -o littlenippersdisk.exo -s "jsr highest_addr_out" -n
 java -jar "c:\c64\tools\kickassembler\kickass.jar" littlenippersdisk.asm
 
 REM *** BUILD TND INTRO LINKER RELEASE FOR DISK *** 
-c:/c64/tools/exomizer/win32/exomizer.exe sfx $0810 tndlinker.rcb littlenippersdisk.prg,$2c00 -o little_nippers_disk.prg -s "lda #$a0 sta $0400" -x "inc $d800"
+c:/c64/tools/exomizer20/win32/exomizer.exe sfx $0810 tndlinker.rcb littlenippersdisk.prg,$2c00 -o little_nippers_disk.prg -n
 
 REM *** BUILD TND INTRO LINKER RELEASE FOR TAPE ***
 
-c:/c64/tools/exomizer/win32/exomizer.exe sfx $0810 tndlinker.rcb littlenippers-ready.prg,$2c00 -o little_nippers_tape.prg -s "lda #$a0 sta $0400" -x "inc $d800"
+c:/c64/tools/exomizer20/win32/exomizer.exe sfx $0810 tndlinker.rcb littlenippers-ready.prg,$2c00 -o little_nippers_tape.prg -f "lda #$01 sta $ba" -n
 REM *** RUN DISK IN VICE ***
 c:\c64\tools\vice\x64sc.exe little_nippers_disk.prg
 

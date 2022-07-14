@@ -7,7 +7,7 @@ displayendscreen:
 			sta $d019 
 			lda #$81
 			sta $dc0d 
-			sta $ddd0d
+			sta $dd0d
 			ldx #$f8
 			ldy #$ff 
 			lda #$0b

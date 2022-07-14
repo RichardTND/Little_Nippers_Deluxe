@@ -97,6 +97,8 @@ exitpic:	sei
 			lda #$00
 			sta $d01a 
 			sta $d019 
+			lda #$0b
+			sta $d011
 			
 			// Clear out the SID
 			

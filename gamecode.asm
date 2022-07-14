@@ -120,6 +120,7 @@ waitstart2: lda $dc01
 			ror firebutton
 			bmi waitstart 
 			bvc waitstart
+			
 			jmp playsetup 
 
 // Display options screen text 
@@ -241,7 +242,9 @@ stayas0:	lda #0
 // Main game initialise
 
 playsetup:	lda #$0b 
-			sta $d011		
+			sta $d011	
+			lda skilllevel
+			sta skilllevelbackup
 			ldx #$00
 clearsid:	lda #$00
 			sta $d400,x 
@@ -337,10 +340,10 @@ gameirq:	sta stacka+1
 			sta $dd0d 
 			lda #$00
 			sta $d012
-			ldx #$0e
+rastime:	ldx #$0e
 			dex
 			bne *-1
-			
+		
 			lda #$1e
 			sta $d018
 			lda #$08
@@ -482,7 +485,8 @@ storspd:	lda level1_speedtable,x
 			sta firebutton
 
 			// Setup the GET READY screen colour and sprite and other bits
-
+			lda #$0b 
+			sta $d011
 			lda #$07
 			sta $d020
 			lda #$07
@@ -823,7 +827,7 @@ testpenalty:
 			beq nopenalty
 			lda crab_released 
 			bne nopenalty
-			
+		
 			inc time_delayMS
 			lda time_delayMS
 			cmp #$30
@@ -833,6 +837,7 @@ testpenalty:
 countinseconds:
 			lda #0
 			sta time_delayMS 
+			
 			ldx crab_place_pointer
 			lda crab_order_table,x
 			sta objpos+14
@@ -841,7 +846,9 @@ countinseconds:
 spriteSM:
 			lda #sprite_10seconds		
 			sta $07ff
-			lda #9
+		
+			lda #0
+clockmain:						
 			sta $d02e
 			inc spriteSM+1
 			lda spriteSM+1
@@ -1052,8 +1059,7 @@ showgameover:
 			inx
 			cpx #20 
 			bne showgameover
-			lda #$1b
-			sta $d011
+			
 			lda #1 
 			sta jingles_allowed_to_play
 			lda #2 
@@ -1097,7 +1103,8 @@ plotgameover:
 			inx
 			cpx #20
 			bne plotgameover 
-
+			lda #$1b
+			sta $d011
 			lda #0
 			sta firebutton 
 			jsr waitdelay
@@ -1210,11 +1217,19 @@ runner1canrun:
 			sta runner_dir1
 			lda runner_speed_table,x 
 			sta runner_speed1
-			
+chooseagain1:			
 			jsr randomread
 			sta selectpointer1
 			ldx selectpointer1
+			
+			// Check runner is not at same row as other runners
+			
 			lda runner_start_ypos_table,x
+			cmp objpos+7 
+			beq chooseagain1
+			cmp objpos+11
+			beq chooseagain1
+			
 			sta objpos+3
 			lda runner_dir1 
 			beq storeleftrunner1 
@@ -1307,10 +1322,19 @@ runner2canrun:
 			sta runner_dir2
 			lda runner_speed_table,x 
 			sta runner_speed2
+chooseagain2:			
 			jsr randomread
 			sta selectpointer2
 			ldx selectpointer2
+			
+			// Prevent runners appearing on the same row
+			
 			lda runner_start_ypos_table,x
+			cmp objpos+3 
+			beq chooseagain2 
+			cmp objpos+11
+			beq chooseagain2
+			
 			sta objpos+7
 			lda runner_dir2
 			beq storeleftrunner2
@@ -1402,11 +1426,20 @@ runner3canrun:
 			sta runner_dir3
 			lda runner_speed_table,x 
 			sta runner_speed3
-			
+chooseagain3:			
 			jsr randomread
 			sta selectpointer3
 			ldx selectpointer3
+			
+			// Prevent storing to same row as other runners
+			
 			lda runner_start_ypos_table,x
+			cmp objpos+3
+			beq chooseagain3
+			cmp objpos+7
+			beq chooseagain3
+			
+			
 			sta objpos+11
 			lda runner_dir3
 			beq storeleftrunner3
@@ -1615,7 +1648,11 @@ runner2out:	lda runner_speed3
 			beq runner3out 
 			rts
 runner3out:
-
+			lda #1
+			sta jingles_allowed_to_play
+			lda #$05
+			jsr musicinit
+			
 scorebonuslooponlevelcompletion:			
 			
 			
@@ -1635,12 +1672,11 @@ scorebonuslooponlevelcompletion:
 stillavailable:
 			jmp scorebonuslooponlevelcompletion
 finishednow:
-			lda #0 
-			sta bonusdelay 
 			lda #0
-			sta soundpointer
+			sta bonusdelay
 			
 bonuscountdown:
+
 			jsr synctimer
 			lda bonusdelay 
 			cmp #5
@@ -1651,14 +1687,26 @@ bonuscountdown2:
 			
 			lda #0
 			sta bonusdelay
-			 
+			
+			
+			
+			ldx #$00 
 			jsr bonus
 			jsr updatepanel
-			
+			lda #<sfx_bonuspoints
+			ldy #>sfx_bonuspoints 
+			ldx #$00
+			jsr musicplay+3
 			jmp bonuscountdown
 bonusphasefinished:			
 			lda #0
 			sta firebutton 
+			ldx #$00
+waitshort2:	ldy #$00
+waitshort:	iny 
+			bne waitshort
+			inx 
+			bne waitshort2
 			
 			lda #0
 			sta $d015
@@ -1673,7 +1721,9 @@ zerosprp:	lda #$00
 			sta jingles_allowed_to_play 
 
 // Place welldone text 
-		    
+		    lda #$0b 
+			sta $d011
+			
 			lda #$18
 			sta charsm+1
 			lda #$00 
@@ -1733,6 +1783,8 @@ lcwait2:	lda $dc01
 			ror firebutton
 			bmi waitcomp
 			bvc waitcomp 
+			lda #$0b
+			sta $d011
 nextlevel:  lda #0
 			sta jingles_allowed_to_play
 			inc levelpointer 
@@ -2405,6 +2457,7 @@ bonus:
 			lda missedtext+1
 			cmp #$30
 			beq bonuscheck2
+		
 			rts
 bonuscheck2:			
 			lda missedtext
@@ -2490,9 +2543,7 @@ scrrt:		lda $0ff8,x
 			cpx #7
 			bne scrrt
 			rts
-			
-// Skill level completed 
-			
+			  
 			
 			
 			

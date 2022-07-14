@@ -43,7 +43,7 @@ savefile:	lda #$0b
 			//saver / loader for the hi score table will
 			//skip
 			
-			ldx $ba		//Check device already used.
+			ldx device		//Check device already used.
 			cpx #$08 	//Note. Refer to 1541 Users manual
 			bcc skipsave //to understand drive commands.
 			lda #$0f 
@@ -60,7 +60,7 @@ savefile:	lda #$0b
 			jsr $ffcc
 			
 			lda #$0f 
-			ldx $ba 
+			ldx device 
 			tay
 			jsr $ffba 
 			jsr resetdevice
@@ -83,7 +83,7 @@ skipsave:
 //however is from TAPE, ignore it!			
 			
 loadfile:
-			ldx $ba 
+			ldx device 
 			cpx #$08 
 			bcc skipload 
 			
@@ -116,6 +116,7 @@ resetdevice:
 			rts
 			
 KillAllInterrupts:
+			sei
 			lda #$00
 			sta $d01a
 			sta $d019 
@@ -133,7 +134,11 @@ nosn:		sta $d400,x
 			bne nosn
 			lda #$37
 			sta $01
+			jsr $e3bf
+			
 			cli 
 			rts
 initdrive:
 			.text "I:"
+			
+device:		.byte 0

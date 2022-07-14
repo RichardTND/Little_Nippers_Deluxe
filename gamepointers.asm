@@ -8,6 +8,7 @@ randtemp: .byte $5a
 random: .byte %10011101,%01011011
 bganimdelay: .byte 0
 chartemp: .byte 0
+skilllevelbackup: .byte 0
 selectpointer1: .byte 0
 selectpointer2: .byte 0
 selectpointer3: .byte 0
@@ -419,7 +420,7 @@ hiscoretext:
 			.byte $30,$30,$30
 			.byte $30,$30,$30 			
 			
-line0:		.text "--------------------"	
+
 line1:		.text " please select your "
 line2:		.text " level with up/down "
 line3:		.text " skill level .... "
@@ -432,7 +433,7 @@ levelcompletetext:
 			.text "   level complete   "
 levellen:
 gameovertext: 
-			.text "     game over      "
+			.text "      game over     "
 
 completemessage:
 			.text "skill level cleared "

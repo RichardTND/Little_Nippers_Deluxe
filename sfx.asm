@@ -130,3 +130,7 @@ snappy_freq:	.byte $16,$00,$26,$00
 				.byte $00,$10,$00,$00
 				.byte $16,$00,$26,$00
 				.byte $00,$10,$00,$00
+				
+// Goat tracker based SFX table for bonus 
+
+sfx_bonuspoints: .byte $0e,$ee,$88,$b0,$41,$ba,$ca,$da,$ca,$ba,$aa,$00	

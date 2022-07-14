@@ -13,90 +13,95 @@ KickAssembler.
        (C)2022 THE NEW DIMENSION
 https://richard-tnd.itch.io/littlenippers
 --------------------------------------*/
+.var cheatmode = 0
+.var testwithnohisaver = 1
 
 // Variables & constants
-.var ready_to_crunch = 1 //Change to 1 when ready to use cruncher
-.var cheatmode = 0
 
-.const screen = $0400
-.const colour = $d800 
-.const scorepos = $07c6 
-.const targetpos = $07d4
-.const misspos = $07dc
-.const hiscorepos = $07e2
-.const titlestart = $054c
-.const levelposition = $07cf
-.const skilllevelcharposition = $05fd
-.const musicinit = $7000
-.const musicplay = $7003
-.const tscreen = $c400
-.const endscreen = $1200
-.const decruncher = $1800
-.const decrunchaddrlo = $1810
-.const decrunchaddrhi = $1811
+.label screen = $0400
+.label colour = $d800 
+.label scorepos = $07c6 
+.label targetpos = $07d4
+.label misspos = $07dc
+.label hiscorepos = $07e2
+.label titlestart = $054c
+.label levelposition = $07cf
+.label skilllevelcharposition = $05fd
+.label musicinit = $7000
+.label musicplay = $7003
+.label tscreen = $c400
+.label endscreen = $1200
+.label decruncher = $1800
+.label decrunchaddrlo = $1810
+.label decrunchaddrhi = $1811
+.label gamescreen = $6800 
+.label attribs = $6c00
 
-.var crab_pos_x1 = $10
-.var crab_pos_x2 = $24
-.var crab_pos_x3 = $38
-.var crab_pos_x4 = $4c
-.var crab_pos_x5 = $60
-.var crab_pos_x6 = $74
-.var crab_pos_x7 = $88
-.var crab_pos_x8 = $9c
+.label crab_pos_x1 = $10
+.label crab_pos_x2 = $24
+.label crab_pos_x3 = $38
+.label crab_pos_x4 = $4c
+.label crab_pos_x5 = $60
+.label crab_pos_x6 = $74
+.label crab_pos_x7 = $88
+.label crab_pos_x8 = $9c
 
-.var collisionleft = $06
-.var collisionright = $0c
-.var collisiontop = $0c
-.var collisionbottom = $18
+.label collisionleft = $06
+.label collisionright = $0c
+.label collisiontop = $0c
+.label collisionbottom = $18
 
-.var runner_height1 = $40
-.var runner_height2 = $50
-.var runner_height3 = $60 
-.var runner_height4 = $70 
-.var runner_height5 = $80 
-.var runner_height6 = $90 
-.var runner_height7 = $a0
+.label runner_height1 = $40
+.label runner_height2 = $50
+.label runner_height3 = $60 
+.label runner_height4 = $70 
+.label runner_height5 = $80 
+.label runner_height6 = $90 
+.label runner_height7 = $a0
 
-.var sprite_10seconds = $c0
-.var sprite_0seconds = $ca
+.label sprite_10seconds = $c0
+.label sprite_0seconds = $ca
 
-.var title_music = $00
-.var get_ready_jingle = $01 
-.var game_over_jingle = $02
-.var well_done_jingle = $03
-.var hi_score_music = $04
+.label title_music = $00
+.label get_ready_jingle = $01 
+.label game_over_jingle = $02
+.label well_done_jingle = $03
+.label hi_score_music = $04
 
-.var scorelen = 6
-.var namelen = 9
-.var listlen = 10
+.label scorelen = 6
+.label namelen = 9
+.label listlen = 10
 
-.const nobonusspr = $3ea0
-.const bonusx2spr = $32f0
-.const bonusx3spr = $3330
-.const bonusx4spr = $3370
-.const bonusx5spr = $33b0
+.label nobonusspr = $3ea0
+.label bonusx2spr = $32f0
+.label bonusx3spr = $3330
+.label bonusx4spr = $3370
+.label bonusx5spr = $33b0
 
-.const scoresprite1 = $2e70 
-.const scoresprite2 = $2eb0
-.const scoresprite3 = $2ef0 
-.const scoresprite4 = $2f30
-.const scoresprite5 = $2f70
-.const scoresprite6 = $2fb0
-.const scoresprite7 = $2ff0
+.label scoresprite1 = $2e70 
+.label scoresprite2 = $2eb0
+.label scoresprite3 = $2ef0 
+.label scoresprite4 = $2f30
+.label scoresprite5 = $2f70
+.label scoresprite6 = $2fb0
+.label scoresprite7 = $2ff0
 //--------------------------------------
 
 // Basic 16384
 BasicUpstart2(CodeStart)
 
+.if (testwithnohisaver == 1)
+{
+} else {
 	* = $1000 "DISK LOADER/SAVER RTNS"
 	.import source "diskaccess.asm" 
+}
 //--------------------------------------
 	* = $1200 "END SCREEN"
 	.import binary "c64/endscreen.bin"
 	
 //--------------------------------------
 
-	
 	
 	
 	* = $1800 "EXOMIZER DECRUNCH ROUTINE"
@@ -187,13 +192,7 @@ beach3attribsend: .byte 0
 
 //--------------------------------------	
 //--------------------------------------	
-// Game screen data
-			* = $6800 "GAME SCREEN"
-gamescreen:	
 
-// Charset attributes data
-			* = $6C00 "GAME SCREEN COLOUR ATTRIBUTES"
-attribs:	
 	 
 	 
 //--------------------------------------	
@@ -238,6 +237,10 @@ logocolour:
 // Title code (including hi score detection)
 	* = $9000 "TITLE SCREEN CODE"
 	.import source "titlescreen.asm"
+	* = $9b00 "HI SCORE TABLE CODE"
+	.import source "hiscore.asm"
+//--------------------------------------
+	
 //--------------------------------------	
 // Title logo bitmap
 	* = $a000 "LOGO BITMAP"

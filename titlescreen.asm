@@ -14,11 +14,23 @@ checkforhiscore:
 	lda #0
 	sta $d019
 	sta $d01a
-	sta skilllevel
+	lda skilllevelbackup
+	sta skilllevel 
 	lda skilllevel
 	clc 
 	adc #$31
 	sta skilllevelchar
+	lda #1
+	sta runner_speed1
+	sta runner_speed1
+	sta runner_speed1
+	lda #0
+	sta runner_dir1
+	lda #1
+	sta runner_dir2
+	lda #0
+	sta runner_dir3
+	
 	lda #0
 	
 	sta firebutton
@@ -718,7 +730,7 @@ hiscore8: .text "013000"
 name9: .text "by        "
 hiscore9: .text "012000"
 .text "10. "
-name10: .text "tnd games "
+name10: .text "zzap      "
 hiscore10: .text "011000"
 HiScoreTableEnd:
 	.text "                    "
@@ -752,12 +764,3 @@ HiScoreTableEnd:
 
   
 .byte 0 
-name: .text "         "
-nameend:
-    
-hslo: .byte <hiscore1,<hiscore2,<hiscore3,<hiscore4,<hiscore5,<hiscore6,<hiscore7,<hiscore8,<hiscore9,<hiscore10
-hshi: .byte >hiscore1,>hiscore2,>hiscore3,>hiscore4,>hiscore5,>hiscore6,>hiscore7,>hiscore8,>hiscore9,>hiscore10
-nmlo: .byte <name1,<name2,<name3,<name4,<name5,<name6,<name7,<name8,<name9,<name10
-nmhi: .byte >name1,>name2,>name3,>name4,>name5,>name6,>name7,>name8,>name9,>name10
-
-.import source "hiscore.asm"
